@@ -1,0 +1,3 @@
+<launch>
+    <node name="openpose2dexpilot" pkg="openpose_mujoco" type="openpose2dexpilot.py" output="screen" />
+</launch>

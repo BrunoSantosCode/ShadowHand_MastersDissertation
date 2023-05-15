@@ -1,0 +1,3 @@
+<launch>
+    <node name="bio_ik_v3" pkg="human_robot_map" type="bio_ik_v3" output="screen" />
+</launch>

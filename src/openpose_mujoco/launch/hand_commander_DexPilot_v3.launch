@@ -1,0 +1,3 @@
+<launch>
+    <node name="hand_commander_v3" pkg="openpose_mujoco" type="hand_commander_DexPilot_v3.py" output="screen" />
+</launch>

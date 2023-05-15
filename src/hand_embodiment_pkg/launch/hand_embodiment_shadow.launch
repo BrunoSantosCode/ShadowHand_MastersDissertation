@@ -1,0 +1,3 @@
+<launch>  
+    <node name="hand_embodiment_shadow" pkg="hand_embodiment_pkg" type="hand_embodiment_shadow.py" output="screen" />
+</launch>

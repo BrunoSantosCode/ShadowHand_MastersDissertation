@@ -1,0 +1,3 @@
+<launch>
+    <node name="openpose2handkp" pkg="hand_embodiment_pkg" type="openpose2handkp_msg.py" output="screen" />
+</launch>

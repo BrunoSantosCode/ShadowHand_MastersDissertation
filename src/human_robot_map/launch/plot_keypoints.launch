@@ -1,0 +1,4 @@
+<launch>
+    <node name="plot_keypoints" pkg="human_robot_map" type="plot_keypoints" output="screen" />
+    <node name="openpose2handkp" pkg="human_robot_map" type="openpose2handkp_msg.py" output="screen" />
+</launch>

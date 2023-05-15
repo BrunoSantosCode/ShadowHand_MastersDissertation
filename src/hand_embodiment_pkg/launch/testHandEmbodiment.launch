@@ -1,0 +1,5 @@
+<launch>
+    <env name="PYTHONPATH" value="/home/user/projects/shadow_robot/base/src/hand_embodiment_pkg:$PYTHONPATH" />
+    
+    <node name="testHandEmbodiment" pkg="hand_embodiment_pkg" type="testHandEmbodiment.py" output="screen" />
+</launch>

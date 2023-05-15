@@ -1,0 +1,3 @@
+<launch>
+    <node name="hand_commander_Joints_vF" pkg="openpose_mujoco" type="hand_commander_Joints_vF.py" output="screen" />
+</launch>

@@ -1,0 +1,3 @@
+<launch>
+    <node name="plot_2D" pkg="openpose_mujoco" type="plot_debug_2D.py" output="screen" />
+</launch>

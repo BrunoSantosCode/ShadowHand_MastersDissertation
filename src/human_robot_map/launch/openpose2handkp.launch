@@ -1,0 +1,3 @@
+<launch>
+    <node name="openpose2handkp" pkg="human_robot_map" type="openpose2handkp_msg.py" output="screen" />
+</launch>

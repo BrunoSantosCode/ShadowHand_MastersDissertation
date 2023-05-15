@@ -1,0 +1,3 @@
+<launch>
+    <node name="hand_keypoints_publisher" pkg="human_robot_map" type="hand_kp_pub" output="screen" />
+</launch>

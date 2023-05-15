@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<launch>
+
+
+    <node name="moveit_bioik_mapping" pkg="human_robot_map" type="underactuation_test" output="screen">
+        <param name="mapfile" value="$(find human_robot_map)/data/shadow_location_map.csv"/>
+        <param name="jointsfile" value="$(find human_robot_map)/data/robot_joints_file_std.csv"/>
+        <param name="statefile" value="$(find human_robot_map)/data/state_file_std.csv"/>
+        <param name="objectives" value="$(find human_robot_map)/data/objectives_file_std.csv"/>
+    </node>
+</launch>
