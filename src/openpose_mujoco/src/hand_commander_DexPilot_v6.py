@@ -12,7 +12,6 @@
 #*  + Parameters adjustments                                       *#
 #* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *#
 
-from logging.config import listen
 import tf
 import rospy
 import numpy as np
@@ -22,6 +21,7 @@ from threading import Thread, Lock
 from dexPilot_v6 import dexPilot_joints
 from hand_embodiment_pkg.msg import HandKeypoints
 from sr_robot_commander.sr_hand_commander import SrHandCommander
+
 
 # Keypoints 3D position median filter
 AVERAGE_N = 4
@@ -104,6 +104,19 @@ def dex_pilot_solver():
             median_keypoints[i] = np.median(keypoints[:,i])
         mutex_kp.release()
 
+        # Write keypopints to .txt file
+        start = timer()
+        timestamp_sec = rospy.get_rostime().to_sec()
+        human_dist = np.sqrt( (median_keypoints[4*3+0] - median_keypoints[8*3+0])**2 + 
+                              (median_keypoints[4*3+1] - median_keypoints[8*3+1])**2 + 
+                              (median_keypoints[4*3+2] - median_keypoints[8*3+2])**2)
+        file_human.write(str(timestamp_sec) + " " + str(human_dist) + '\n')
+        listener.waitForTransform('/rh_thtip', '/rh_fftip', rospy.Time(), rospy.Duration(1.0))
+        (trans, rot) = listener.lookupTransform('/rh_thtip', '/rh_fftip', rospy.Time(0))
+        shadow_dist = tf.transformations.vector_norm(trans)
+        file_shadow.write(str(timestamp_sec) + " " + str(shadow_dist) + '\n')
+        end = timer()
+
         # Check if new keypoints
         if np.array_equal(median_keypoints, prev_keypoints):
             rospy.sleep(0.05)
@@ -169,17 +182,6 @@ def openPose_CB(msg):
     keypoints = np.roll(keypoints, 1, axis=0)
     keypoints[0] = this_keypoints
     mutex_kp.release()
-
-    # Write keypopints to .csv file
-    timestamp_sec = rospy.get_rostime().to_sec()
-    thumb_tip = msg.keypoints[4]
-    forefinger_tip = msg.keypoints[8]
-    human_dist = np.sqrt( (thumb_tip.x - forefinger_tip.x)**2 + (thumb_tip.y - forefinger_tip.y)**2 + (thumb_tip.z - forefinger_tip.z)**2)
-    file_human.write(str(timestamp_sec) + " " + str(human_dist) + '\n')
-    listener.waitForTransform('/rh_thtip', '/rh_fftip', rospy.Time(), rospy.Duration(1.0))
-    (trans, rot) = listener.lookupTransform('/rh_thtip', '/rh_fftip', rospy.Time(0))
-    shadow_dist = tf.transformations.vector_norm(trans)
-    file_shadow.write(str(timestamp_sec) + " " + str(shadow_dist) + '\n')
 
     # DEBUG
     if False:
