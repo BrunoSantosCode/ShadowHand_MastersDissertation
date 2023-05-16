@@ -119,8 +119,6 @@ def getLittleFingerTip(joints):
 
 # s(di)  [Switching weight function]
 def switch_weight(dist, id):
-    if id == 13:
-        print(dist)
     if (dist > E1) and (id < 4):
         return 1
     elif (dist <= E1) and (id < 4):
@@ -282,9 +280,6 @@ def dexPilot_joints(hand_kp):
     mf = np.array([hand_kp[12*3+0], hand_kp[12*3+1], hand_kp[12*3+2]])
     rf = np.array([hand_kp[16*3+0], hand_kp[16*3+1], hand_kp[16*3+2]])
     lf = np.array([hand_kp[20*3+0], hand_kp[20*3+1], hand_kp[20*3+2]])
-
-    print('Distance: ', np.linalg.norm(wr-rf))
-
     # Rotation matrix
     v05 = np.subtract(aux5, aux0)
     v09 = np.subtract(aux9, aux0)

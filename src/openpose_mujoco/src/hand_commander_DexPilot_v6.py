@@ -12,6 +12,8 @@
 #*  + Parameters adjustments                                       *#
 #* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *#
 
+from logging.config import listen
+import tf
 import rospy
 import numpy as np
 from math import pi as PI
@@ -34,7 +36,7 @@ prev_joints = np.zeros(24)
 mutex_kp = Lock()
 mutex_joints = Lock()
 
-#Define joints bounds
+# Define joints bounds
 joints_min = [0.0, 0.0, -15.0, -20.0,
               0.0, 0.0, -15.0, -20.0, 0.0,
               0.0, 0.0, -15.0, -20.0,
@@ -49,6 +51,12 @@ joints_max = [90.0-90.0, 90.0+90.0, 90.0, 20.0,
               28.0, 8.0] 
 joints_min_rad = np.radians(joints_min)
 joints_max_rad = np.radians(joints_max)
+
+# File to save keypoints positions
+file1_path = '/home/user/projects/shadow_robot/base/src/openpose_mujoco/src/human_hand_kp_dist.txt'
+file2_path = '/home/user/projects/shadow_robot/base/src/openpose_mujoco/src/shadow_hand_kp_dist.txt'
+file_human = open(file1_path, 'w')
+file_shadow = open(file2_path, 'w')
 
 # Thread that send commands to Shadow Hand
 def send_shadow_commands():
@@ -162,6 +170,14 @@ def openPose_CB(msg):
     keypoints[0] = this_keypoints
     mutex_kp.release()
 
+    # Write keypopints to .csv file
+    timestamp_sec = rospy.get_rostime().to_sec()
+    dist = np.sqrt( (msg.keypoints[4].x-msg.keypoints[8].x)**2 + (msg.keypoints[4].y-msg.keypoints[8].y)**2 + (msg.keypoints[4].z-msg.keypoints[8].z)**2)
+    file_human.write(str(timestamp_sec) + " " + str(dist) + '\n')
+    listener.waitForTransform('/rh_thtip', '/rh_fftip', rospy.Time(), rospy.Duration(1.0))
+    (trans, rot) = listener.lookupTransform('/rh_thtip', '/rh_fftip', rospy.Time(0))
+    distance = tf.transformations.vector_norm(trans)
+    file_shadow.write(str(timestamp_sec) + " " + str(distance) + '\n')
 
     # DEBUG
     if False:
@@ -177,6 +193,8 @@ def openPose_sub():
 
 if __name__ == "__main__":
     rospy.init_node('hand_commander_DexPilot_vF')
+
+    listener = tf.TransformListener()
 
     # Shadow Hand commander
     hand_commander = SrHandCommander(name='right_hand')

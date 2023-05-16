@@ -44,11 +44,14 @@
 #include <mutex>
 #include <chrono>
 
+#include <iostream>
+#include <fstream>
+
 #define PI 3.14159265359
 #define N_FILTER 5
 
 // GLOBAL VARS
-tf2_ros::Buffer tfBuffer;
+tf2_ros::Buffer tfBuffer, tfBuffer2;
 std::string base_frame;
 moveit::planning_interface::MoveGroupInterface* mgi_pointer;
 const moveit::core::JointModelGroup* joint_model_group;
@@ -60,6 +63,11 @@ std::mutex mutex_kp;
 
 bool exec_thread_started = false;
 bool bio_ik_thread_started = false;
+
+std::string path1 = "/home/user/projects/shadow_robot/base/src/human_robot_map/src/human_hand_kp.txt";
+std::ofstream file_human(path1);
+std::string path2 = "/home/user/projects/shadow_robot/base/src/human_robot_map/src/shadow_hand_kp.txt";
+std::ofstream file_shadow(path2);
 
 // ROS RVIZ Publisher
 ros::Publisher marker_pub, marker_pub_shadow, joints_shadow;

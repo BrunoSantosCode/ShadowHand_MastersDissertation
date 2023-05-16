@@ -17,7 +17,6 @@
 
 #include <bio_ik_v5.h>
 
-
 // Thread to compute inverse kinematics [BioIK]
 void bio_ik_solver()
 {   
@@ -57,6 +56,57 @@ void bio_ik_solver()
         plotKeypointsRVIZ(mean_kp, false);
         
         mean_kp = mapShadowHand(mean_kp);     
+
+        double timestamp_sec = ros::Time::now().toSec();
+        
+        // Save fingertips/knuckles positions to text file
+        file_human << timestamp_sec << " "
+                   << mean_kp[4].x() << " " << mean_kp[4].y() << " " << mean_kp[4].z() << " "
+                   << mean_kp[8].x() << " " << mean_kp[8].y() << " " << mean_kp[8].z() << " "
+                   << mean_kp[12].x() << " " << mean_kp[12].y() << " " << mean_kp[12].z() << " "
+                   << mean_kp[16].x() << " " << mean_kp[16].y() << " " << mean_kp[16].z() << " "
+                   << mean_kp[20].x() << " " << mean_kp[20].y() << " " << mean_kp[20].z()
+                   << std::endl;
+
+        ros::Duration tf_timeout(4.0);
+        tfBuffer2.canTransform("world", "rh_thtip", ros::Time(0), tf_timeout);
+        geometry_msgs::TransformStamped transform = tfBuffer2.lookupTransform("world", "rh_thtip", ros::Time(0));
+        double th_x, th_y, th_z;
+        th_x = transform.transform.translation.x;
+        th_y = transform.transform.translation.y;
+        th_z = transform.transform.translation.z;
+        tfBuffer2.canTransform("world", "rh_fftip", ros::Time(0), tf_timeout);
+        transform = tfBuffer2.lookupTransform("world", "rh_fftip", ros::Time(0));
+        double ff_x, ff_y, ff_z;
+        ff_x = transform.transform.translation.x;
+        ff_y = transform.transform.translation.y;
+        ff_z = transform.transform.translation.z;
+        tfBuffer2.canTransform("world", "rh_mftip", ros::Time(0), tf_timeout);
+        transform = tfBuffer2.lookupTransform("world", "rh_mftip", ros::Time(0));
+        double mf_x, mf_y, mf_z;
+        mf_x = transform.transform.translation.x;
+        mf_y = transform.transform.translation.y;
+        mf_z = transform.transform.translation.z;
+        tfBuffer2.canTransform("world", "rh_rftip", ros::Time(0), tf_timeout);
+        transform = tfBuffer2.lookupTransform("world", "rh_rftip", ros::Time(0));
+        double rf_x, rf_y, rf_z;
+        rf_x = transform.transform.translation.x;
+        rf_y = transform.transform.translation.y;
+        rf_z = transform.transform.translation.z;
+        tfBuffer2.canTransform("world", "rh_lftip", ros::Time(0), tf_timeout);
+        transform = tfBuffer2.lookupTransform("world", "rh_lftip", ros::Time(0));
+        double lf_x, lf_y, lf_z;
+        lf_x = transform.transform.translation.x;
+        lf_y = transform.transform.translation.y;
+        lf_z = transform.transform.translation.z;
+        
+        file_shadow << timestamp_sec << " "
+                    << th_x << " " << th_y << " " << th_z << " "
+                    << ff_x << " " << ff_y << " " << ff_z << " "
+                    << mf_x << " " << mf_y << " " << mf_z << " "
+                    << rf_x << " " << rf_y << " " << rf_z << " "
+                    << lf_x << " " << lf_y << " " << lf_z << " "
+                    << std::endl;
         
         // Plot Shadow Hand keypoints [RVIZ]
         plotKeypointsRVIZ(mean_kp, true);
@@ -383,6 +433,7 @@ int main(int argc, char **argv)
 
     // ROS Transform
     tf2_ros::TransformListener tfListener(tfBuffer);
+    tf2_ros::TransformListener tfListener2(tfBuffer2);
 
     // Moveit
     std::string group_name = "right_hand";
