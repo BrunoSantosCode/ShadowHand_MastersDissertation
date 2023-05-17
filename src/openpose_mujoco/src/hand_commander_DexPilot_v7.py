@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-#* * * * * * * * * * hand_commander_DexPilot_v6  * * * * * * * * * *#
+#* * * * * * * * * * hand_commander_DexPilot_v7  * * * * * * * * * *#
 #*  Receives HandKeypoints.msg from "hand_kp" topic                *#
 #*  Uses DexPilot to calculate inverse kinematics (thread1)        *#
 #*  Send joint angles to Shadow Hand (thread2)                     *#
@@ -8,10 +8,12 @@
 #*  Hand_embodiment solve only if different angles keypoints       *#
 #*  Execute only if different angles                               *#
 #*  Change hand referential to Shadow Hand referential             *#
-#*  + Fix joint 1 to 0                                             *#
-#*  + Parameters adjustments                                       *#
+#*  Fix joint 1 to 0                                               *#
+#*  Parameters adjustments                                         *#
+#*  Shadow Hand keypoints mapping                                  *#
 #* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *#
 
+from statistics import median
 import tf
 import rospy
 import numpy as np
@@ -57,6 +59,67 @@ file1_path = '/home/user/projects/shadow_robot/base/src/openpose_mujoco/src/huma
 file2_path = '/home/user/projects/shadow_robot/base/src/openpose_mujoco/src/shadow_hand_kp_dist_dex_pilot.txt'
 file_human = open(file1_path, 'w')
 file_shadow = open(file2_path, 'w')
+
+# Auxiliary method for mapping human hand keypoints into Shadow Hand
+def aux_mapping(kp1, kp2, distance):
+    norm = np.sqrt( np.power(kp2[0]-kp1[0], 2) + np.power(kp2[1]-kp1[1], 2) + np.power(kp2[2]-kp1[2], 2) )
+    if norm == 0:
+        return kp1
+    norm_x = (kp2[0]-kp1[0]) / norm
+    norm_y = (kp2[1]-kp1[1]) / norm
+    norm_z = (kp2[2]-kp1[2]) / norm
+    x = kp1[0] + norm_x*distance
+    y = kp1[1] + norm_y*distance
+    z = kp1[2] + norm_z*distance
+    return [x, y, z]
+
+# Maps human hand keypoints into Shadow Hand [rh_wrist referential]
+def map_shadow_hand(human_kp):
+
+    shadow_kp = human_kp.copy()
+    
+    # Thumb
+    i = 3
+    metacarpal = np.sqrt(np.power(29, 2) + np.power(34, 2))
+    shadow_kp[i:i+3] = aux_mapping(shadow_kp[0:3], shadow_kp[i:i+3], metacarpal / 1000)
+    shadow_kp[i+3:i+6] = aux_mapping(shadow_kp[i:i+3], shadow_kp[i+3:i+6], 38 / 1000)
+    shadow_kp[i+6:i+9] = aux_mapping(shadow_kp[i+3:i+6], shadow_kp[i+6:i+9], 32 / 1000)
+    shadow_kp[i+9:i+12] = aux_mapping(shadow_kp[i+6:i+9], shadow_kp[i+9:i+12], 27 / 1000)
+    
+    # Forefinger
+    i = 15
+    metacarpal = np.sqrt(np.power(95, 2) + np.power(33, 2))
+    shadow_kp[i:i+3] = aux_mapping(shadow_kp[0:3], shadow_kp[i:i+3], metacarpal / 1000)
+    shadow_kp[i+3:i+6] = aux_mapping(shadow_kp[i:i+3], shadow_kp[i+3:i+6], 45 / 1000)
+    shadow_kp[i+6:i+9] = aux_mapping(shadow_kp[i+3:i+6], shadow_kp[i+6:i+9], 25 / 1000)
+    shadow_kp[i+9:i+12] = aux_mapping(shadow_kp[i+6:i+9], shadow_kp[i+9:i+12], 26 / 1000)
+    
+    # Middlefinger
+    i = 27
+    metacarpal = np.sqrt(np.power(99, 2) + np.power(11, 2))
+    shadow_kp[i:i+3] = aux_mapping(shadow_kp[0:3], shadow_kp[i:i+3], metacarpal / 1000)
+    shadow_kp[i+3:i+6] = aux_mapping(shadow_kp[i:i+3], shadow_kp[i+3:i+6], 45 / 1000)
+    shadow_kp[i+6:i+9] = aux_mapping(shadow_kp[i+3:i+6], shadow_kp[i+6:i+9], 25 / 1000)
+    shadow_kp[i+9:i+12] = aux_mapping(shadow_kp[i+6:i+9], shadow_kp[i+9:i+12], 26 / 1000)
+    
+    # Ringfinger
+    i = 39
+    metacarpal = np.sqrt(np.power(95, 2) + np.power(11, 2))
+    shadow_kp[i:i+3] = aux_mapping(shadow_kp[0:3], shadow_kp[i:i+3], metacarpal / 1000)
+    shadow_kp[i+3:i+6] = aux_mapping(shadow_kp[i:i+3], shadow_kp[i+3:i+6], 45 / 1000)
+    shadow_kp[i+6:i+9] = aux_mapping(shadow_kp[i+3:i+6], shadow_kp[i+6:i+9], 25 / 1000)
+    shadow_kp[i+9:i+12] = aux_mapping(shadow_kp[i+6:i+9], shadow_kp[i+9:i+12], 26 / 1000)
+    
+    # Littlefinger
+    i = 51
+    metacarpal = np.sqrt(np.power(86.6, 2) + np.power(33, 2))
+    shadow_kp[i:i+3] = aux_mapping(shadow_kp[0:3], shadow_kp[i:i+3], metacarpal / 1000)
+    shadow_kp[i+3:i+6] = aux_mapping(shadow_kp[i:i+3], shadow_kp[i+3:i+6], 45 / 1000)
+    shadow_kp[i+6:i+9] = aux_mapping(shadow_kp[i+3:i+6], shadow_kp[i+6:i+9], 25 / 1000)
+    shadow_kp[i+9:i+12] = aux_mapping(shadow_kp[i+6:i+9], shadow_kp[i+9:i+12], 26 / 1000)
+
+    return shadow_kp
+
 
 # Thread that send commands to Shadow Hand
 def send_shadow_commands():
@@ -104,17 +167,6 @@ def dex_pilot_solver():
             median_keypoints[i] = np.median(keypoints[:,i])
         mutex_kp.release()
 
-        # Write keypopints to .txt file
-        timestamp_sec = rospy.get_rostime().to_sec()
-        human_dist = np.sqrt( (median_keypoints[4*3+0] - median_keypoints[8*3+0])**2 + 
-                              (median_keypoints[4*3+1] - median_keypoints[8*3+1])**2 + 
-                              (median_keypoints[4*3+2] - median_keypoints[8*3+2])**2)
-        file_human.write(str(timestamp_sec) + " " + str(human_dist) + '\n')
-        listener.waitForTransform('/rh_thtip', '/rh_fftip', rospy.Time(), rospy.Duration(1.0))
-        (trans, rot) = listener.lookupTransform('/rh_thtip', '/rh_fftip', rospy.Time(0))
-        shadow_dist = tf.transformations.vector_norm(trans)
-        file_shadow.write(str(timestamp_sec) + " " + str(shadow_dist) + '\n')
-
         # Check if new keypoints
         if np.array_equal(median_keypoints, prev_keypoints):
             rospy.sleep(0.05)
@@ -126,9 +178,22 @@ def dex_pilot_solver():
         if False:
             print('Median:')
             print(median_keypoints[0], median_keypoints[30], median_keypoints[-1])
+        
+        shadow_kp = map_shadow_hand(median_keypoints)
                                  
-        # Convert to Shadow Hand (DexPilot)
-        this_joints, _ = dexPilot_joints(median_keypoints)
+         # Convert to Shadow Hand (DexPilot)
+        this_joints, _ = dexPilot_joints(shadow_kp)
+
+        # Write keypopints to .txt file
+        timestamp_sec = rospy.get_rostime().to_sec()
+        human_dist = np.sqrt( (shadow_kp[4*3+0] - shadow_kp[8*3+0])**2 + 
+                              (shadow_kp[4*3+1] - shadow_kp[8*3+1])**2 + 
+                              (shadow_kp[4*3+2] - shadow_kp[8*3+2])**2)
+        file_human.write(str(timestamp_sec) + " " + str(human_dist) + '\n')
+        listener.waitForTransform('/rh_thtip', '/rh_fftip', rospy.Time(), rospy.Duration(1.0))
+        (trans, rot) = listener.lookupTransform('/rh_thtip', '/rh_fftip', rospy.Time(0))
+        shadow_dist = tf.transformations.vector_norm(trans)
+        file_shadow.write(str(timestamp_sec) + " " + str(shadow_dist) + '\n')
 
         # DEBUG
         if False:
@@ -194,7 +259,7 @@ def openPose_sub():
     rospy.spin()
 
 if __name__ == "__main__":
-    rospy.init_node('hand_commander_DexPilot_v6')
+    rospy.init_node('hand_commander_DexPilot_v7')
 
     listener = tf.TransformListener()
 
@@ -205,7 +270,7 @@ if __name__ == "__main__":
     hand_commander.set_max_velocity_scaling_factor(0.01)
     hand_commander.set_max_acceleration_scaling_factor(0.5)
 
-    print('\n' + colored('"hand_commander_DexPilot_v6" ROS node is ready!', 'green') + '\n')  
+    print('\n' + colored('"hand_commander_DexPilot_v7" ROS node is ready!', 'green') + '\n')  
 
     thread1 = Thread(target=dex_pilot_solver)
     thread1.start()

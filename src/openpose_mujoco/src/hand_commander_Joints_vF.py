@@ -111,7 +111,7 @@ def send_shadow_commands():
         this_joints[15] = get_angle_knuckles(kp_point[0],  kp_point[9], kp_point[13], kp_point[14])  
         # Thumb
         this_joints[17] = get_angle(kp_point[2], kp_point[3], kp_point[4])
-        this_joints[19] = get_angle(kp_point[5], kp_point[2], kp_point[3])  
+        this_joints[19] = get_angle(kp_point[1], kp_point[2], kp_point[3])  
         this_joints[20] = get_angle(kp_point[0], kp_point[1], kp_point[2])  
         
         # DEBUG
