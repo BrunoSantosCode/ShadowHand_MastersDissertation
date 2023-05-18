@@ -5,12 +5,13 @@
 #*  Uses DexPilot to calculate inverse kinematics (thread1)        *#
 #*  Send joint angles to Shadow Hand (thread2)                     *#
 #*  Adaptable median filter for keypoint positions                 *#
-#*  Hand_embodiment solve only if different angles keypoints       *#
+#*  DexPilot solve only if different angles keypoints              *#
 #*  Execute only if different angles                               *#
 #*  Change hand referential to Shadow Hand referential             *#
 #*  Fix joint 1 to 0                                               *#
 #*  Parameters adjustments                                         *#
-#*  Shadow Hand keypoints mapping                                  *#
+#*  + Shadow Hand keypoints mapping                                *#
+#*  + Plot keypoints to RVIZ                                       *#
 #* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *#
 
 from statistics import median
@@ -21,8 +22,14 @@ from math import pi as PI
 from termcolor import colored
 from threading import Thread, Lock
 from dexPilot_v6 import dexPilot_joints
-from hand_embodiment_pkg.msg import HandKeypoints
+from openpose_mujoco.msg import HandKeypoints
 from sr_robot_commander.sr_hand_commander import SrHandCommander
+
+from visualization_msgs.msg import Marker, MarkerArray
+from geometry_msgs.msg import Point
+
+marker_publisher_hand = rospy.Publisher('rviz_hand_keypoints_markers', MarkerArray, queue_size=1)
+marker_publisher_shadow = rospy.Publisher('rviz_shadow_keypoints_markers', MarkerArray, queue_size=1)
 
 
 # Keypoints 3D position median filter
@@ -73,7 +80,7 @@ def aux_mapping(kp1, kp2, distance):
     z = kp1[2] + norm_z*distance
     return [x, y, z]
 
-# Maps human hand keypoints into Shadow Hand [rh_wrist referential]
+# Maps human hand keypoints into Shadow Hand
 def map_shadow_hand(human_kp):
 
     shadow_kp = human_kp.copy()
@@ -119,6 +126,81 @@ def map_shadow_hand(human_kp):
     shadow_kp[i+9:i+12] = aux_mapping(shadow_kp[i+6:i+9], shadow_kp[i+9:i+12], 26 / 1000)
 
     return shadow_kp
+
+
+# Plots hand keypoints in RVIZ
+def plot_hand_keypoints(keypoints, shadow):
+
+    marker_array = MarkerArray()
+
+    new_keypoints = np.resize(keypoints, (23,3))
+
+    # Create a marker for each keypoint
+    for i, keypoint in enumerate(new_keypoints):
+        marker = Marker()
+        marker.header.frame_id = "rh_wrist"
+        marker.header.stamp = rospy.Time.now()
+        marker.ns = "hand_keypoints"
+        marker.id = i
+        marker.type = Marker.SPHERE
+        marker.action = Marker.ADD
+        marker.pose.orientation.w = 1.0
+        marker.scale.x = 0.01
+        marker.scale.y = 0.01
+        marker.scale.z = 0.01
+        marker.color.a = 1.0
+        if shadow:
+            marker.color.r = 1.0
+            marker.color.g = 1.0
+            marker.color.b = 1.0
+        else:
+            marker.color.r = 1.0
+            marker.color.g = 0.0
+            marker.color.b = 0.0
+        marker.pose.position.x = keypoint[0]
+        marker.pose.position.y = keypoint[1]
+        marker.pose.position.z = keypoint[2]
+
+        marker_array.markers.append(marker)
+
+    # Connect the groups of points
+    connections = [[0, 1, 2, 3, 4], [0, 5, 6, 7, 8], [0, 9, 10, 11, 12], [0, 13, 14, 15, 16], [0, 17, 18, 19, 20]]
+
+    # Create markers for the connections
+    for connection_idx, connection in enumerate(connections):
+        line_marker = Marker()
+        line_marker.header.frame_id = "rh_wrist"
+        line_marker.header.stamp = rospy.Time.now()
+        line_marker.ns = "hand_connections"
+        line_marker.id = connection_idx
+        line_marker.type = Marker.LINE_STRIP
+        line_marker.action = Marker.ADD
+        line_marker.pose.orientation.w = 1.0
+        line_marker.scale.x = 0.004
+        line_marker.color.a = 1.0
+        if shadow:
+            line_marker.color.r = 0.1
+            line_marker.color.g = 0.1
+            line_marker.color.b = 0.1
+        else:
+            line_marker.color.r = 0.0
+            line_marker.color.g = 0.0
+            line_marker.color.b = 1.0
+
+        for point_idx in connection:
+            point = Point()
+            point.x = new_keypoints[point_idx][0]
+            point.y = new_keypoints[point_idx][1]
+            point.z = new_keypoints[point_idx][2]
+            line_marker.points.append(point)
+
+        marker_array.markers.append(line_marker)
+
+    if shadow:
+        marker_publisher_shadow.publish(marker_array)
+    else:
+        marker_publisher_hand.publish(marker_array)
+
 
 
 # Thread that send commands to Shadow Hand
@@ -178,8 +260,12 @@ def dex_pilot_solver():
         if False:
             print('Median:')
             print(median_keypoints[0], median_keypoints[30], median_keypoints[-1])
+
+        plot_hand_keypoints(median_keypoints, False)
         
         shadow_kp = map_shadow_hand(median_keypoints)
+
+        plot_hand_keypoints(shadow_kp, True)
                                  
          # Convert to Shadow Hand (DexPilot)
         this_joints, _ = dexPilot_joints(shadow_kp)

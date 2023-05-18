@@ -5,7 +5,7 @@
 #*  Uses DexPilot to calculate inverse kinematics (thread1)        *#
 #*  Send joint angles to Shadow Hand (thread2)                     *#
 #*  Adaptable median filter for keypoint positions                 *#
-#*  Hand_embodiment solve only if different angles keypoints       *#
+#*  DexPilot solve only if different angles keypoints              *#
 #*  Execute only if different angles                               *#
 #*  Change hand referential to Shadow Hand referential             *#
 #*  + Fix joint 1 to 0                                             *#
@@ -19,7 +19,7 @@ from math import pi as PI
 from termcolor import colored
 from threading import Thread, Lock
 from dexPilot_v6 import dexPilot_joints
-from hand_embodiment_pkg.msg import HandKeypoints
+from openpose_mujoco.msg import HandKeypoints
 from sr_robot_commander.sr_hand_commander import SrHandCommander
 
 
