@@ -53,11 +53,12 @@ void bio_ik_solver()
 
 
         // Plot keypoints from median filter [RVIZ]
-        plotKeypointsRVIZ(mean_kp, false);
+        //plotKeypointsRVIZ(mean_kp, false);
         
         mean_kp = mapShadowHand(mean_kp);     
 
-        double timestamp_sec = ros::Time::now().toSec();
+        double timestamp_sec = (ros::Time::now()-time_begin).toSec();
+        //double timestamp_sec = ros::Time::now().toSec();
         
         // Save fingertips/knuckles positions to text file
         file_human << timestamp_sec << " "
@@ -109,7 +110,7 @@ void bio_ik_solver()
                     << std::endl;
         
         // Plot Shadow Hand keypoints [RVIZ]
-        plotKeypointsRVIZ(mean_kp, true);
+        //plotKeypointsRVIZ(mean_kp, true);
 
         // DEBUG
         if (false){
@@ -425,11 +426,13 @@ int main(int argc, char **argv)
 {
     // Init ROS node
     ros::init(argc, argv, "bio_ik_v7");
-    std::cout << "\"bio_ik_v6\" ROS node started!" << std::endl;
+    std::cout << "\"bio_ik_v7\" ROS node started!" << std::endl;
     ros::NodeHandle nh;
 
     ros::AsyncSpinner spinner(5);
     spinner.start();
+
+    time_begin = ros::Time::now();
 
     // ROS Transform
     tf2_ros::TransformListener tfListener(tfBuffer);

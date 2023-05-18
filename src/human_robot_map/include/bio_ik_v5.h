@@ -64,10 +64,12 @@ std::mutex mutex_kp;
 bool exec_thread_started = false;
 bool bio_ik_thread_started = false;
 
-std::string path1 = "/home/user/projects/shadow_robot/base/src/human_robot_map/src/human_hand_kp_bio_ik.txt";
+std::string path1 = "/home/user/projects/shadow_robot/base/src/human_robot_map/src/human_hand_kp_bio_ik_video.txt";
 std::ofstream file_human(path1);
-std::string path2 = "/home/user/projects/shadow_robot/base/src/human_robot_map/src/shadow_hand_kp_bio_ik.txt";
+std::string path2 = "/home/user/projects/shadow_robot/base/src/human_robot_map/src/shadow_hand_kp_bio_ik_video.txt";
 std::ofstream file_shadow(path2);
+
+ros::Time time_begin;
 
 // ROS RVIZ Publisher
 ros::Publisher marker_pub, marker_pub_shadow, joints_shadow;
