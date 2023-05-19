@@ -104,6 +104,13 @@ def dex_pilot_solver():
             median_keypoints[i] = np.median(keypoints[:,i])
         mutex_kp.release()
 
+        # Check if new keypoints
+        if np.array_equal(median_keypoints, prev_keypoints):
+            rospy.sleep(0.05)
+            continue
+        else:
+            prev_keypoints = median_keypoints
+
         # Write keypopints to .txt file
         timestamp_sec = rospy.get_rostime().to_sec()
         human_dist = np.sqrt( (median_keypoints[4*3+0] - median_keypoints[8*3+0])**2 + 
@@ -114,13 +121,6 @@ def dex_pilot_solver():
         (trans, rot) = listener.lookupTransform('/rh_thtip', '/rh_fftip', rospy.Time(0))
         shadow_dist = tf.transformations.vector_norm(trans)
         file_shadow.write(str(timestamp_sec) + " " + str(shadow_dist) + '\n')
-
-        # Check if new keypoints
-        if np.array_equal(median_keypoints, prev_keypoints):
-            rospy.sleep(0.05)
-            continue
-        else:
-            prev_keypoints = median_keypoints
 
         # DEBUG
         if False:
