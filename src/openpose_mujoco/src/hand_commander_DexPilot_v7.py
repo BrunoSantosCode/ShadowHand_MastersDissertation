@@ -261,11 +261,11 @@ def dex_pilot_solver():
             print('Median:')
             print(median_keypoints[0], median_keypoints[30], median_keypoints[-1])
 
-        plot_hand_keypoints(median_keypoints, False)
+        #plot_hand_keypoints(median_keypoints, False)
         
         shadow_kp = map_shadow_hand(median_keypoints)
 
-        plot_hand_keypoints(shadow_kp, True)
+        #plot_hand_keypoints(shadow_kp, True)
                                  
          # Convert to Shadow Hand (DexPilot)
         this_joints, _ = dexPilot_joints(shadow_kp)
