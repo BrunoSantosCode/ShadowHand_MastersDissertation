@@ -1,0 +1,3 @@
+<launch>
+    <node name="run_joints_shadow" pkg="shadow_pinch_teleop" type="run_joints_shadow.py" output="screen" />
+</launch>

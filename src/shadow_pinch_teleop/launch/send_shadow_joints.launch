@@ -1,0 +1,3 @@
+<launch>
+    <node name="send_shadow_joints" pkg="shadow_pinch_teleop" type="send_shadow_joints.py" output="screen" />
+</launch>

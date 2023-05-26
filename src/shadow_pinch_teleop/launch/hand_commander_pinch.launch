@@ -1,0 +1,3 @@
+<launch>
+    <node name="hand_commander_pinch" pkg="shadow_pinch_teleop" type="hand_commander_pinch.py" output="screen" />
+</launch>
