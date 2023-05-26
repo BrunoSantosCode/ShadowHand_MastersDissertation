@@ -1,0 +1,8 @@
+<launch>
+    <node name="demo_teachnet" pkg="teach_net_teleoperation" type="demo_teachnet.py" output="screen">
+        <param name="model_path" value="/home/user/projects/shadow_robot/base/src/teach_net_teleoperation/weights/new_early_teach_teleop.model"/>
+        <param name="cuda" value="false"/>
+        <param name="gpu" value="0"/>
+    </node>
+    <node name="demo_robot_safe" pkg="teach_net_teleoperation" type="demo_robot_safe.py" output="screen" />
+</launch>

@@ -1,0 +1,3 @@
+<launch>
+    <node name="send_shadow_joints" pkg="teach_net_teleoperation" type="send_shadow_joints.py" output="screen" />
+</launch>
