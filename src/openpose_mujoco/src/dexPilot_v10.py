@@ -54,7 +54,7 @@ def getThumbTip(joints):
     return np.array([x*0.01, y*0.01, z*0.01])   # [cm -> m]
 
 def getForeFingerTip(joints):
-    f1, f2, f3, f4 = max(0, joints[1]-PI/2), min(PI/2, joints[1]), joints[2], joints[3]
+    f1, f2, f3, f4 = joints[0], joints[1], joints[2], joints[3]
     z = (cos(f4)*(25*cos(f2 + f3) + 45*cos(f3) + 26*cos(f1 + f2 + f3)))/10
     x = (sin(f4)*(25*cos(f2 + f3) + 45*cos(f3) + 26*cos(f1 + f2 + f3)))/10
     y = (13*sin(f1 + f2 + f3))/5 + (5*sin(f2 + f3))/2 + (9*sin(f3))/2
@@ -63,7 +63,7 @@ def getForeFingerTip(joints):
     return np.array([x*0.01, y*0.01, z*0.01])   # [cm -> m]
 
 def getMiddleFingerTip(joints):
-    f1, f2, f3, f4 = max(0, joints[10]-PI/2), min(PI/2, joints[10]), joints[11], joints[12]
+    f1, f2, f3, f4 = joints[9], joints[10], joints[11], joints[12]
     z = (cos(f4)*(25*cos(f2 + f3) + 45*cos(f3) + 26*cos(f1 + f2 + f3)))/10
     x = (sin(f4)*(25*cos(f2 + f3) + 45*cos(f3) + 26*cos(f1 + f2 + f3)))/10
     y = (13*sin(f1 + f2 + f3))/5 + (5*sin(f2 + f3))/2 + (9*sin(f3))/2
@@ -72,7 +72,7 @@ def getMiddleFingerTip(joints):
     return np.array([x*0.01, y*0.01, z*0.01])
 
 def getRingFingerTip(joints):
-    f1, f2, f3, f4 = max(0, joints[14]-PI/2), min(PI/2, joints[14]), joints[15], joints[16]
+    f1, f2, f3, f4 = joints[13], joints[14], joints[15], joints[16]
     z = (cos(-f4)*(25*cos(f2 + f3) + 45*cos(f3) + 26*cos(f1 + f2 + f3)))/10
     x = (sin(-f4)*(25*cos(f2 + f3) + 45*cos(f3) + 26*cos(f1 + f2 + f3)))/10
     y = (13*sin(f1 + f2 + f3))/5 + (5*sin(f2 + f3))/2 + (9*sin(f3))/2
@@ -81,7 +81,7 @@ def getRingFingerTip(joints):
     return np.array([x*0.01, y*0.01, z*0.01])   # [cm -> m]
 
 def getLittleFingerTip(joints):
-    f1, f2, f3, f4, f5 = max(0, joints[5]-PI/2), min(PI/2, joints[5]), joints[6], joints[7], joints[8]
+    f1, f2, f3, f4, f5 = joints[4], joints[5], joints[6], joints[7], joints[8]
     # Define the DH parameters
     a = [0, 8.66-2.071, 0, 4.5, 2.5, 2.6] # link length
     alpha = [PI/2, 0, -PI/2, 0, 0, 0] # link twist
@@ -251,10 +251,10 @@ def cost_function(robot_joints):
 #                               RFJ1, RFJ2, RFJ3, RFJ4
 #                               THJ1, THJ2, THJ3, THJ4, THJ5]
 
-bounds_deg = ((0,0), (0,90+90), (-15,90), (-20,20),
-              (0,0), (0,90+90), (-15,90), (-20,20), (0,45),
-              (0,0), (0,90+90), (-15,90), (-20,20),
-              (0,0), (0,90+90), (-15,90), (-20,20),
+bounds_deg = ((0,90), (0,90), (-15,90), (-20,20),
+              (0,90), (0,90), (-15,90), (-20,20), (0,45),
+              (0,90), (0,90), (-15,90), (-20,20),
+              (0,90), (0,90), (-15,90), (-20,20),
               (-15,90), (-30,30), (-12,12), (0,70), (-60,60),
               (0,0), (0,0))
 

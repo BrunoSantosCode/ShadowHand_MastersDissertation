@@ -1,19 +1,20 @@
-/* * * * * * * * * * * bio_ik_v7.cpp * * * * * * * * * * */
-/*  Receives HandKeypoints.msg from "hand_kp" topic      */
-/*  Uses BioIK to calculate inverse kinematics (thread1) */
-/*  Send joint angles to Shadow Hand (thread2)           */
-/*  Mutex to access joint_angles                         */
-/*  Adaptable median filter for keypoint positions       */
-/*  Structural reorganization                            */
-/*    [kp_pos -> BioIK -> angles -> Shadow Hand]         */
-/*  Execute only if different angles                     */
-/*  BioIK solve only if different angles keypoints       */
-/*  Map human hand into Shadow Hand                      */
-/*  Adjustments in hand referential                      */
-/*  Sends Shadow Hand commands by SrHandCommander        */
-/*  MapShadowHand after median                           */
-/*  + Redefinition of Goals                              */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/* * * * * * * * * * * bio_ik_v10.cpp * * * * * * * * * * */
+/*  Receives HandKeypoints.msg from "hand_kp" topic       */
+/*  Uses BioIK to calculate inverse kinematics (thread1)  */
+/*  Send joint angles to Shadow Hand (thread2)            */
+/*  Mutex to access joint_angles                          */
+/*  Adaptable median filter for keypoint positions        */
+/*  Structural reorganization                             */
+/*    [kp_pos -> BioIK -> angles -> Shadow Hand]          */
+/*  Execute only if different angles                      */
+/*  BioIK solve only if different angles keypoints        */
+/*  Map human hand into Shadow Hand                       */
+/*  Adjustments in hand referential                       */
+/*  Sends Shadow Hand commands by SrHandCommander         */
+/*  MapShadowHand after median                            */
+/*  Redefinition of Goals                                 */
+/*  + Coupled control of UR5 and Shadow Hand              */
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * *  */
 
 #include <bio_ik_v5.h>
 
@@ -322,8 +323,12 @@ void bio_ik_solver()
         else
             std::cout << "Did not find IK solution" << std::endl;
 
+        if (joint_angles.size() < 10){
+            continue;
+        }
+
         // DEUBG
-        if (false){
+        if (true){
             std::cout << "Sent joint angles:" << std::endl;
             for (int i=0; i<joint_angles.size(); i++)
                 std::cout << " " << joint_angles[i] << " ";
@@ -399,7 +404,7 @@ void handKeypointsCB(const human_robot_map::HandKeypoints::ConstPtr& msg)
     }
 
     // Plot human hand keypoints [RVIZ]
-    //plotKeypointsRVIZ(keypoints, false);
+    // plotKeypointsRVIZ(keypoints, false);
 
     // Map from human hand to Shadow Hand
     //std::vector<Eigen::Vector3d> shadow_keypoints = mapShadowHand(keypoints);     
@@ -425,8 +430,8 @@ void handKeypointsCB(const human_robot_map::HandKeypoints::ConstPtr& msg)
 int main(int argc, char **argv)
 {
     // Init ROS node
-    ros::init(argc, argv, "bio_ik_v7");
-    std::cout << "\"bio_ik_v7\" ROS node started!" << std::endl;
+    ros::init(argc, argv, "bio_ik_v10");
+    std::cout << "\"bio_ik_v10\" ROS node started!" << std::endl;
     ros::NodeHandle nh;
 
     ros::AsyncSpinner spinner(5);
@@ -439,7 +444,7 @@ int main(int argc, char **argv)
     tf2_ros::TransformListener tfListener2(tfBuffer2);
 
     // Moveit
-    std::string group_name = "right_hand";
+    std::string group_name = "right_arm_and_hand";
     moveit::planning_interface::MoveGroupInterface mgi(group_name);
     base_frame = mgi.getPoseReferenceFrame();
 
@@ -453,7 +458,7 @@ int main(int argc, char **argv)
     planning_scene::PlanningScene planning_scene(robot_model);
 
     // DEBUG
-    if (false){
+    if (true){
         // Print joint names
         std::vector<std::string> joint_names = joint_model_group->getJointModelNames();
         for (const auto& name : joint_names) {
@@ -490,7 +495,7 @@ int main(int argc, char **argv)
     marker_pub_shadow = nh.advertise<visualization_msgs::MarkerArray>("shadow_keypoints_marker", 1);
 
     // Ready 
-    std::cout << "\n\033[1;32m\"bio_ik_v7\" ROS node is ready!\033[0m\n" << std::endl;
+    std::cout << "\n\033[1;32m\"bio_ik_v10\" ROS node is ready!\033[0m\n" << std::endl;
 
     ros::waitForShutdown(); // because of ros::AsyncSpinner
     //ros::spin();

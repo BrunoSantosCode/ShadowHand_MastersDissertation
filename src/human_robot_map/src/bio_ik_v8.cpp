@@ -1,4 +1,4 @@
-/* * * * * * * * * * * bio_ik_v7.cpp * * * * * * * * * * */
+/* * * * * * * * * * * bio_ik_v8.cpp * * * * * * * * * * */
 /*  Receives HandKeypoints.msg from "hand_kp" topic      */
 /*  Uses BioIK to calculate inverse kinematics (thread1) */
 /*  Send joint angles to Shadow Hand (thread2)           */
@@ -12,7 +12,8 @@
 /*  Adjustments in hand referential                      */
 /*  Sends Shadow Hand commands by SrHandCommander        */
 /*  MapShadowHand after median                           */
-/*  + Redefinition of Goals                              */
+/*  Redefinition of Goals                                */
+/*  - Dealing with joint cooupling                       */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 #include <bio_ik_v5.h>
@@ -208,7 +209,6 @@ void bio_ik_solver()
         // BioIK condition weights
         std::vector <float> MapPositionWeights {1.0,1.0,1.0,1.0,1.0,0.2,0.2,0.2,0.2,0.2};
         std::vector <float> MapDirectionWeights{0.1,0.1,0.1,0.1,0.1,0.1};
-        float CoupleJointsWeight = 1.0;
         float CenterJointsWeight = 0.15;
         // BioIK goals
         bio_ik::BioIKKinematicsQueryOptions ik_options;
@@ -247,48 +247,7 @@ void bio_ik_solver()
 
             ik_options.goals.emplace_back(new bio_ik::DirectionGoal(MapDirectionlinks[i], tf2::Vector3(0,0,1), Mapdirection.normalized(), MapDirectionWeights[i]));
         }
-        // Set non-linear Shadow Hand joint coupling constraints
-        std::vector<std::string> ff_coupled_joints, mf_coupled_joints, rf_coupled_joints, lf_coupled_joints;
-        ff_coupled_joints.push_back("rh_FFJ1");
-        ff_coupled_joints.push_back("rh_FFJ2");
-        mf_coupled_joints.push_back("rh_MFJ1");
-        mf_coupled_joints.push_back("rh_MFJ2");
-        rf_coupled_joints.push_back("rh_RFJ1");
-        rf_coupled_joints.push_back("rh_RFJ2");
-        lf_coupled_joints.push_back("rh_LFJ1");
-        lf_coupled_joints.push_back("rh_LFJ2");
-        auto* ff_goal = new bio_ik::JointFunctionGoal(
-                            ff_coupled_joints,
-                            [=] (std::vector<double>& vv) {
-                                vv[0] = fmax(0, vv[1]-PI);  // if J2<90º => J1=0
-                                vv[1] = fmin(PI/2, vv[1]);  // max(J2) = 90º       
-                            },  CoupleJointsWeight 
-                        );
-        auto* mf_goal = new bio_ik::JointFunctionGoal(
-                            mf_coupled_joints,
-                            [=] (std::vector<double>& vv) {
-                                vv[0] = fmax(0, vv[1]-PI);  // if J2<90º => J1=0
-                                vv[1] = fmin(PI/2, vv[1]);  // max(J2) = 90º       
-                            },  CoupleJointsWeight 
-                        );
-        auto* rf_goal = new bio_ik::JointFunctionGoal(
-                            rf_coupled_joints,
-                            [=] (std::vector<double>& vv) {
-                                vv[0] = fmax(0, vv[1]-PI);  // if J2<90º => J1=0
-                                vv[1] = fmin(PI/2, vv[1]);  // max(J2) = 90º       
-                            },  CoupleJointsWeight  
-                        );
-        auto* lf_goal = new bio_ik::JointFunctionGoal(
-                            lf_coupled_joints,
-                            [=] (std::vector<double>& vv) {
-                                vv[0] = fmax(0, vv[1]-PI);  // if J2<90º => J1=0
-                                vv[1] = fmin(PI/2, vv[1]);  // max(J2) = 90º       
-                            },  CoupleJointsWeight  
-                        );
-        ik_options.goals.emplace_back(ff_goal);
-        ik_options.goals.emplace_back(mf_goal);
-        ik_options.goals.emplace_back(rf_goal);
-        ik_options.goals.emplace_back(lf_goal);
+        
         // Set Center Joints Goal
         ik_options.goals.emplace_back(new bio_ik::CenterJointsGoal(CenterJointsWeight));
 

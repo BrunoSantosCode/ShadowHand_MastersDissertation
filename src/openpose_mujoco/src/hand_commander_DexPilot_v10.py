@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
 
-#* * * * * * * * * * hand_commander_DexPilot_v7  * * * * * * * * * *#
-#*  Receives HandKeypoints.msg from "hand_kp" topic                *#
-#*  Uses DexPilot to calculate inverse kinematics (thread1)        *#
-#*  Send joint angles to Shadow Hand (thread2)                     *#
-#*  Adaptable median filter for keypoint positions                 *#
-#*  DexPilot solve only if different angles keypoints              *#
-#*  Execute only if different angles                               *#
-#*  Change hand referential to Shadow Hand referential             *#
-#*  Fix joint 1 to 0                                               *#
-#*  Parameters adjustments                                         *#
-#*  + Shadow Hand keypoints mapping                                *#
-#*  + Plot keypoints to RVIZ                                       *#
-#*  + Print/Save solver duration [ms]                              *#
-#* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *#
+#* * * * * * * * * * hand_commander_DexPilot_v10  * * * * * * * * * *#
+#*  Receives HandKeypoints.msg from "hand_kp" topic                 *#
+#*  Uses DexPilot to calculate inverse kinematics (thread1)         *#
+#*  Send joint angles to Shadow Hand (thread2)                      *#
+#*  Adaptable median filter for keypoint positions                  *#
+#*  DexPilot solve only if different angles keypoints               *#
+#*  Execute only if different angles                                *#
+#*  Change hand referential to Shadow Hand referential              *#
+#*  Fix joint 1 to 0                                                *#
+#*  Parameters adjustments                                          *#
+#*  Shadow Hand keypoints mapping                                   *#
+#*  Plot keypoints to RVIZ                                          *#
+#*  Print solver duration [ms]                                      *#
+#*  - Dealing with joint cooupling                                  *#
+#* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  *#
 
 from statistics import median
 import tf
@@ -22,7 +23,7 @@ import numpy as np
 from math import pi as PI
 from termcolor import colored
 from threading import Thread, Lock
-from dexPilot_v6 import dexPilot_joints
+from dexPilot_v10 import dexPilot_joints
 from timeit import default_timer as timer
 from openpose_mujoco.msg import HandKeypoints
 from sr_robot_commander.sr_hand_commander import SrHandCommander
@@ -66,10 +67,8 @@ joints_max_rad = np.radians(joints_max)
 # File to save keypoints positions
 file1_path = '/home/user/projects/shadow_robot/base/src/openpose_mujoco/src/human_hand_kp_dist_dex_pilot.txt'
 file2_path = '/home/user/projects/shadow_robot/base/src/openpose_mujoco/src/shadow_hand_kp_dist_dex_pilot.txt'
-file3_path = '/home/user/projects/shadow_robot/base/src/openpose_mujoco/src/dex_pilot_duration_ms.txt'
 file_human = open(file1_path, 'w')
 file_shadow = open(file2_path, 'w')
-file_dur = open(file3_path, 'w')
 
 # Auxiliary method for mapping human hand keypoints into Shadow Hand
 def aux_mapping(kp1, kp2, distance):
@@ -273,11 +272,10 @@ def dex_pilot_solver():
         #plot_hand_keypoints(shadow_kp, True)
                                  
         # Convert to Shadow Hand (DexPilot)
-        start = timer()
+        start = timer() 
         this_joints, _ = dexPilot_joints(shadow_kp)
         end = timer()
         print('DexPilot solver duration: ', round((end-start)*1000, 2), ' ms!')
-        file_dur.write(str(round((end-start)*1000, 2)) + '\n')
 
         # Write keypopints to .txt file
         timestamp_sec = rospy.get_rostime().to_sec()
@@ -295,16 +293,6 @@ def dex_pilot_solver():
             # Print the joint angles
             print("Joint angles:")
             print(joint_angles)
-
-        # Dealing with Shadow Joints coupling
-        this_joints[0] = max(0, this_joints[1]-PI/2)
-        this_joints[1] = min(PI/2, this_joints[1])
-        this_joints[4] = max(0, this_joints[5]-PI/2)
-        this_joints[5] = min(PI/2, this_joints[5])
-        this_joints[9] = max(0, this_joints[10]-PI/2)
-        this_joints[10] = min(PI/2, this_joints[10])
-        this_joints[13] = max(0, this_joints[14]-PI/2)
-        this_joints[14] = min(PI/2, this_joints[14])
 
         # Check joints limits
         for i in range(0,len(this_joints)):
@@ -354,7 +342,7 @@ def openPose_sub():
     rospy.spin()
 
 if __name__ == "__main__":
-    rospy.init_node('hand_commander_DexPilot_v7')
+    rospy.init_node('hand_commander_DexPilot_v10')
 
     listener = tf.TransformListener()
 
@@ -365,7 +353,7 @@ if __name__ == "__main__":
     hand_commander.set_max_velocity_scaling_factor(0.01)
     hand_commander.set_max_acceleration_scaling_factor(0.5)
 
-    print('\n' + colored('"hand_commander_DexPilot_v7" ROS node is ready!', 'green') + '\n')  
+    print('\n' + colored('"hand_commander_DexPilot_v10" ROS node is ready!', 'green') + '\n')  
 
     thread1 = Thread(target=dex_pilot_solver)
     thread1.start()

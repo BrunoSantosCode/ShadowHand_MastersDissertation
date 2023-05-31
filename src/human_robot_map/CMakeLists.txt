@@ -107,6 +107,8 @@ add_executable(bio_ik_v4 src/bio_ik_v4.cpp)
 add_executable(bio_ik_v5 src/bio_ik_v5.cpp)
 add_executable(bio_ik_v6 src/bio_ik_v6.cpp)
 add_executable(bio_ik_v7 src/bio_ik_v7.cpp)
+add_executable(bio_ik_v8 src/bio_ik_v8.cpp)
+add_executable(bio_ik_v10 src/bio_ik_v10.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
@@ -120,6 +122,8 @@ add_dependencies(bio_ik_v4 ${catkin_EXPORTED_TARGETS})
 add_dependencies(bio_ik_v5 ${catkin_EXPORTED_TARGETS})
 add_dependencies(bio_ik_v6 ${catkin_EXPORTED_TARGETS})
 add_dependencies(bio_ik_v7 ${catkin_EXPORTED_TARGETS})
+add_dependencies(bio_ik_v8 ${catkin_EXPORTED_TARGETS})
+add_dependencies(bio_ik_v10 ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(hand_kp_pub 
@@ -158,6 +162,14 @@ target_link_libraries(bio_ik_v6
   Eigen3::Eigen
 )
 target_link_libraries(bio_ik_v7
+  ${catkin_LIBRARIES}
+  Eigen3::Eigen
+)
+target_link_libraries(bio_ik_v8
+  ${catkin_LIBRARIES}
+  Eigen3::Eigen
+)
+target_link_libraries(bio_ik_v10
   ${catkin_LIBRARIES}
   Eigen3::Eigen
 )
