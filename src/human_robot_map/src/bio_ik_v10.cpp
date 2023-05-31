@@ -16,7 +16,7 @@
 /*  + Coupled control of UR5 and Shadow Hand              */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * *  */
 
-#include <bio_ik_v5.h>
+#include <bio_ik_v10.h>
 
 // Thread to compute inverse kinematics [BioIK]
 void bio_ik_solver()
@@ -56,59 +56,8 @@ void bio_ik_solver()
         // Plot keypoints from median filter [RVIZ]
         //plotKeypointsRVIZ(mean_kp, false);
         
+        // Map OpenPose keypoints to Shadow Hand
         mean_kp = mapShadowHand(mean_kp);     
-
-        double timestamp_sec = (ros::Time::now()-time_begin).toSec();
-        //double timestamp_sec = ros::Time::now().toSec();
-        
-        // Save fingertips/knuckles positions to text file
-        file_human << timestamp_sec << " "
-                   << mean_kp[4].x() << " " << mean_kp[4].y() << " " << mean_kp[4].z() << " "
-                   << mean_kp[8].x() << " " << mean_kp[8].y() << " " << mean_kp[8].z() << " "
-                   << mean_kp[12].x() << " " << mean_kp[12].y() << " " << mean_kp[12].z() << " "
-                   << mean_kp[16].x() << " " << mean_kp[16].y() << " " << mean_kp[16].z() << " "
-                   << mean_kp[20].x() << " " << mean_kp[20].y() << " " << mean_kp[20].z()
-                   << std::endl;
-
-        ros::Duration tf_timeout(4.0);
-        tfBuffer2.canTransform("rh_wrist", "rh_thtip", ros::Time(0), tf_timeout);
-        geometry_msgs::TransformStamped transform = tfBuffer2.lookupTransform("rh_wrist", "rh_thtip", ros::Time(0));
-        double th_x, th_y, th_z;
-        th_x = transform.transform.translation.x;
-        th_y = transform.transform.translation.y;
-        th_z = transform.transform.translation.z;
-        tfBuffer2.canTransform("rh_wrist", "rh_fftip", ros::Time(0), tf_timeout);
-        transform = tfBuffer2.lookupTransform("rh_wrist", "rh_fftip", ros::Time(0));
-        double ff_x, ff_y, ff_z;
-        ff_x = transform.transform.translation.x;
-        ff_y = transform.transform.translation.y;
-        ff_z = transform.transform.translation.z;
-        tfBuffer2.canTransform("rh_wrist", "rh_mftip", ros::Time(0), tf_timeout);
-        transform = tfBuffer2.lookupTransform("rh_wrist", "rh_mftip", ros::Time(0));
-        double mf_x, mf_y, mf_z;
-        mf_x = transform.transform.translation.x;
-        mf_y = transform.transform.translation.y;
-        mf_z = transform.transform.translation.z;
-        tfBuffer2.canTransform("rh_wrist", "rh_rftip", ros::Time(0), tf_timeout);
-        transform = tfBuffer2.lookupTransform("rh_wrist", "rh_rftip", ros::Time(0));
-        double rf_x, rf_y, rf_z;
-        rf_x = transform.transform.translation.x;
-        rf_y = transform.transform.translation.y;
-        rf_z = transform.transform.translation.z;
-        tfBuffer2.canTransform("rh_wrist", "rh_lftip", ros::Time(0), tf_timeout);
-        transform = tfBuffer2.lookupTransform("rh_wrist", "rh_lftip", ros::Time(0));
-        double lf_x, lf_y, lf_z;
-        lf_x = transform.transform.translation.x;
-        lf_y = transform.transform.translation.y;
-        lf_z = transform.transform.translation.z;
-        
-        file_shadow << timestamp_sec << " "
-                    << th_x << " " << th_y << " " << th_z << " "
-                    << ff_x << " " << ff_y << " " << ff_z << " "
-                    << mf_x << " " << mf_y << " " << mf_z << " "
-                    << rf_x << " " << rf_y << " " << rf_z << " "
-                    << lf_x << " " << lf_y << " " << lf_z << " "
-                    << std::endl;
         
         // Plot Shadow Hand keypoints [RVIZ]
         //plotKeypointsRVIZ(mean_kp, true);
@@ -298,7 +247,7 @@ void bio_ik_solver()
 
         // Set BioIK solver
         bool found_ik = current_state.setFromIK(
-                            joint_model_group,             // Shadow Hand joints
+                            joint_model_group,             // UR5 + Shadow Hand joints
                             EigenSTL::vector_Isometry3d(), // no explicit poses here
                             std::vector<std::string>(),
                             timeout,
@@ -328,7 +277,7 @@ void bio_ik_solver()
         }
 
         // DEUBG
-        if (true){
+        if (false){
             std::cout << "Sent joint angles:" << std::endl;
             for (int i=0; i<joint_angles.size(); i++)
                 std::cout << " " << joint_angles[i] << " ";
@@ -437,8 +386,6 @@ int main(int argc, char **argv)
     ros::AsyncSpinner spinner(5);
     spinner.start();
 
-    time_begin = ros::Time::now();
-
     // ROS Transform
     tf2_ros::TransformListener tfListener(tfBuffer);
     tf2_ros::TransformListener tfListener2(tfBuffer2);
@@ -490,9 +437,7 @@ int main(int argc, char **argv)
     ros::Subscriber hand_keypoints_sub = nh.subscribe("hand_kp", 1, handKeypointsCB);
 
     // Create Publisher
-    joints_shadow = nh.advertise<std_msgs::Float64MultiArray>("shadow_joints", 1);
-    marker_pub = nh.advertise<visualization_msgs::MarkerArray>("hand_keypoints_marker", 1);
-    marker_pub_shadow = nh.advertise<visualization_msgs::MarkerArray>("shadow_keypoints_marker", 1);
+    joints_shadow = nh.advertise<std_msgs::Float64MultiArray>("ur5_shadow_joints", 1);
 
     // Ready 
     std::cout << "\n\033[1;32m\"bio_ik_v10\" ROS node is ready!\033[0m\n" << std::endl;
