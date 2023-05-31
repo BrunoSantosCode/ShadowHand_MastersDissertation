@@ -1,0 +1,3 @@
+<launch>
+    <node name="get_ur5_shadow_joints" pkg="human_robot_map" type="get_ur5_shadow_joints.py" output="screen" />
+</launch>

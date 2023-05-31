@@ -61,8 +61,15 @@ def jointsCB(msg: Float64MultiArray):
     # Send joints command for Shadow Hand
     arm_hand_pos = arm_hand_commander.get_joints_position()
 
-    arm_hand_pos.update({'ra_shoulder_pan_joint': this_joints[0], 'ra_shoulder_lift_joint': this_joints[1], 'ra_elbow_joint': this_joints[2]})
-    arm_hand_pos.update({'ra_wrist_1_joint': this_joints[3], 'ra_wrist_2_joint': this_joints[4], 'ra_wrist_3_joint': this_joints[5]})
+    # UR5
+    if False:
+        arm_hand_pos.update({'ra_shoulder_pan_joint': this_joints[0], 'ra_shoulder_lift_joint': this_joints[1], 'ra_elbow_joint': this_joints[2]})
+        arm_hand_pos.update({'ra_wrist_1_joint': this_joints[3], 'ra_wrist_2_joint': this_joints[4], 'ra_wrist_3_joint': this_joints[5]})
+    else:
+        arm_hand_pos.update({'ra_shoulder_pan_joint': -2.585, 'ra_shoulder_lift_joint': -1.245, 'ra_elbow_joint': 2.00})
+        arm_hand_pos.update({'ra_wrist_1_joint': -0.728, 'ra_wrist_2_joint': 1.571, 'ra_wrist_3_joint': -3.141})
+
+    # Shadow Hand    
     arm_hand_pos.update({'rh_WRJ2': this_joints[6],  'rh_WRJ1': this_joints[7]})
     arm_hand_pos.update({'rh_FFJ4': this_joints[8],  'rh_FFJ3': this_joints[9],  'rh_FFJ2': this_joints[10],  'rh_FFJ1': this_joints[11]})
     arm_hand_pos.update({'rh_LFJ5': this_joints[12],  'rh_LFJ4': this_joints[13],  'rh_LFJ3': this_joints[14],  'rh_LFJ2': this_joints[15],  'rh_LFJ1': this_joints[16]})
