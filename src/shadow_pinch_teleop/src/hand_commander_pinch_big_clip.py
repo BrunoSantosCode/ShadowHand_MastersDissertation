@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-#* * * * * * * * * * * hand_commander_pinch.py * * * * * * * * * * *#
+#* * * * * * * * * hand_commander_pinch_big_clip.py  * * * * * * * *#
 #*  Receives HandKeypoints.msg from "hand_kp" topic                *#
 #*  Adaptable median filter for keypoint positions                 *#
 #*  Calculte distance between thumb and forefinger tips            *#
@@ -29,7 +29,7 @@ HYST = 0.5  # Hysteresis [cm]
 
 # GUI 
 window = tk.Tk()
-window.title('Shadow Hand Commander (pinch)')
+window.title('Shadow Hand Commander (pinch big clip)')
 window.geometry("500x400")
 state_lbl = tk.Label(window, text='STATE', font=("Arial", 27, 'bold'))
 state_lbl.pack()
@@ -56,18 +56,18 @@ open_pose = {'rh_FFJ1': 0.0, 'rh_FFJ2': 0.0, 'rh_FFJ3': 0.0, 'rh_FFJ4': 0.0,
              'rh_THJ1': 0.0, 'rh_THJ2': 0.0, 'rh_THJ3': 0.0, 'rh_THJ4': 0.0, 'rh_THJ5': 0.0,
              'rh_WRJ1': 0.0, 'rh_WRJ2': 0.0}
 
-start_pinch_pose = {'rh_FFJ1': 0.02488300632883622, 'rh_FFJ2': 0.0, 'rh_FFJ3': 1.566404705503622, 'rh_FFJ4': 0.3513813328956592, 
+start_pinch_pose = {'rh_FFJ1': 0.0, 'rh_FFJ2': 0.0, 'rh_FFJ3': 1.5707, 'rh_FFJ4': 0.35415, 
                     'rh_LFJ1': 1.5707, 'rh_LFJ2': 1.5707, 'rh_LFJ3': 1.5707, 'rh_LFJ4': 0.0, 'rh_LFJ5': 0.0, 
                     'rh_MFJ1': 1.5707, 'rh_MFJ2': 1.5707, 'rh_MFJ3': 1.5707, 'rh_MFJ4': 0.0, 
                     'rh_RFJ1': 1.5707, 'rh_RFJ2': 1.5707, 'rh_RFJ3': 1.5707, 'rh_RFJ4': 0.0, 
-                    'rh_THJ1': 0.5866214473810422, 'rh_THJ2': 0.706871554453986, 'rh_THJ3': 0.2114043697106358, 'rh_THJ4': 1.082787266966136, 'rh_THJ5': -0.26724209920157144, 
+                    'rh_THJ1': -0.24833, 'rh_THJ2': 0.05104, 'rh_THJ3': 0.0, 'rh_THJ4': 1.21407, 'rh_THJ5': 0.44347, 
                     'rh_WRJ1': -0.698, 'rh_WRJ2': 0.0}
 
-pinch_pose = {'rh_FFJ1': 0.5045644935294691, 'rh_FFJ2': 0.4948927023747079, 'rh_FFJ3': 1.4694847073279993, 'rh_FFJ4': 0.3499228746405044, 
+pinch_pose = {'rh_FFJ1': 0.0, 'rh_FFJ2': 0.3, 'rh_FFJ3': 1.5707, 'rh_FFJ4': 0.35415, 
               'rh_LFJ1': 1.5707, 'rh_LFJ2': 1.5707, 'rh_LFJ3': 1.5707, 'rh_LFJ4': 0.0, 'rh_LFJ5': 0.0, 
               'rh_MFJ1': 1.5707, 'rh_MFJ2': 1.5707, 'rh_MFJ3': 1.5707, 'rh_MFJ4': 0.0, 
               'rh_RFJ1': 1.5707, 'rh_RFJ2': 1.5707, 'rh_RFJ3': 1.5707, 'rh_RFJ4': 0.0, 
-              'rh_THJ1': 0.5446552455060745, 'rh_THJ2': 0.6556293654039187, 'rh_THJ3': 0.22146148256396972, 'rh_THJ4': 1.1083549900557197, 'rh_THJ5': -0.36871717101159257, 
+              'rh_THJ1': 0.05, 'rh_THJ2': 0.05104, 'rh_THJ3': 0.0, 'rh_THJ4': 1.21407, 'rh_THJ5': 0.44347, 
               'rh_WRJ1': -0.698, 'rh_WRJ2': 0.0}
 
 # Keypoints 3D position median filter

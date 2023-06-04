@@ -1,0 +1,3 @@
+<launch>
+    <node name="hand_commander_pinch_big_clip" pkg="shadow_pinch_teleop" type="hand_commander_pinch_big_clip.py" output="screen" />
+</launch>
