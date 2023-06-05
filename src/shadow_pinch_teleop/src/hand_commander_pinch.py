@@ -8,8 +8,6 @@
 #*  Execute only if new keypoints positions                        *#
 #* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *#
 
-from dis import dis
-from os import stat
 import rospy
 import numpy as np
 import tkinter as tk
@@ -56,19 +54,35 @@ open_pose = {'rh_FFJ1': 0.0, 'rh_FFJ2': 0.0, 'rh_FFJ3': 0.0, 'rh_FFJ4': 0.0,
              'rh_THJ1': 0.0, 'rh_THJ2': 0.0, 'rh_THJ3': 0.0, 'rh_THJ4': 0.0, 'rh_THJ5': 0.0,
              'rh_WRJ1': 0.0, 'rh_WRJ2': 0.0}
 
-start_pinch_pose = {'rh_FFJ1': 0.02488300632883622, 'rh_FFJ2': 0.0, 'rh_FFJ3': 1.566404705503622, 'rh_FFJ4': 0.3513813328956592, 
+start_pinch_pose = {'rh_FFJ1': 0.0, 'rh_FFJ2': 0.0, 'rh_FFJ3': 1.5707, 'rh_FFJ4': 0.35415, 
                     'rh_LFJ1': 1.5707, 'rh_LFJ2': 1.5707, 'rh_LFJ3': 1.5707, 'rh_LFJ4': 0.0, 'rh_LFJ5': 0.0, 
                     'rh_MFJ1': 1.5707, 'rh_MFJ2': 1.5707, 'rh_MFJ3': 1.5707, 'rh_MFJ4': 0.0, 
                     'rh_RFJ1': 1.5707, 'rh_RFJ2': 1.5707, 'rh_RFJ3': 1.5707, 'rh_RFJ4': 0.0, 
-                    'rh_THJ1': 0.5866214473810422, 'rh_THJ2': 0.706871554453986, 'rh_THJ3': 0.2114043697106358, 'rh_THJ4': 1.082787266966136, 'rh_THJ5': -0.26724209920157144, 
+                    'rh_THJ1': -0.24833, 'rh_THJ2': 0.05104, 'rh_THJ3': 0.0, 'rh_THJ4': 1.21407, 'rh_THJ5': 0.44347, 
                     'rh_WRJ1': -0.698, 'rh_WRJ2': 0.0}
 
-pinch_pose = {'rh_FFJ1': 0.5045644935294691, 'rh_FFJ2': 0.4948927023747079, 'rh_FFJ3': 1.4694847073279993, 'rh_FFJ4': 0.3499228746405044, 
+pinch_pose = {'rh_FFJ1': 0.0, 'rh_FFJ2': 0.5, 'rh_FFJ3': 1.5707, 'rh_FFJ4': 0.35415, 
               'rh_LFJ1': 1.5707, 'rh_LFJ2': 1.5707, 'rh_LFJ3': 1.5707, 'rh_LFJ4': 0.0, 'rh_LFJ5': 0.0, 
               'rh_MFJ1': 1.5707, 'rh_MFJ2': 1.5707, 'rh_MFJ3': 1.5707, 'rh_MFJ4': 0.0, 
               'rh_RFJ1': 1.5707, 'rh_RFJ2': 1.5707, 'rh_RFJ3': 1.5707, 'rh_RFJ4': 0.0, 
-              'rh_THJ1': 0.5446552455060745, 'rh_THJ2': 0.6556293654039187, 'rh_THJ3': 0.22146148256396972, 'rh_THJ4': 1.1083549900557197, 'rh_THJ5': -0.36871717101159257, 
+              'rh_THJ1': -0.32294, 'rh_THJ2': -0.14608, 'rh_THJ3': 0.15715, 'rh_THJ4': 1.10, 'rh_THJ5': 0.65, 
               'rh_WRJ1': -0.698, 'rh_WRJ2': 0.0}
+
+
+# Pinch Pose 01
+# start_pinch_pose = {'rh_FFJ1': 0.02488300632883622, 'rh_FFJ2': 0.0, 'rh_FFJ3': 1.566404705503622, 'rh_FFJ4': 0.3513813328956592, 
+#                     'rh_LFJ1': 1.5707, 'rh_LFJ2': 1.5707, 'rh_LFJ3': 1.5707, 'rh_LFJ4': 0.0, 'rh_LFJ5': 0.0, 
+#                     'rh_MFJ1': 1.5707, 'rh_MFJ2': 1.5707, 'rh_MFJ3': 1.5707, 'rh_MFJ4': 0.0, 
+#                     'rh_RFJ1': 1.5707, 'rh_RFJ2': 1.5707, 'rh_RFJ3': 1.5707, 'rh_RFJ4': 0.0, 
+#                     'rh_THJ1': 0.5866214473810422, 'rh_THJ2': 0.706871554453986, 'rh_THJ3': 0.2114043697106358, 'rh_THJ4': 1.082787266966136, 'rh_THJ5': -0.26724209920157144, 
+#                     'rh_WRJ1': -0.698, 'rh_WRJ2': 0.0}
+# pinch_pose = {'rh_FFJ1': 0.0, 'rh_FFJ2': 1.5707, 'rh_FFJ3': 1.566404705503622, 'rh_FFJ4': 0.3513813328956592, 
+#               'rh_LFJ1': 1.5707, 'rh_LFJ2': 1.5707, 'rh_LFJ3': 1.5707, 'rh_LFJ4': 0.0, 'rh_LFJ5': 0.0, 
+#               'rh_MFJ1': 1.5707, 'rh_MFJ2': 1.5707, 'rh_MFJ3': 1.5707, 'rh_MFJ4': 0.0, 
+#               'rh_RFJ1': 1.5707, 'rh_RFJ2': 1.5707, 'rh_RFJ3': 1.5707, 'rh_RFJ4': 0.0, 
+#               'rh_THJ1': 0.5866214473810422, 'rh_THJ2': 0.706871554453986, 'rh_THJ3': 0.2114043697106358, 'rh_THJ4': 1.082787266966136, 'rh_THJ5': -0.26724209920157144, 
+#               'rh_WRJ1': -0.698, 'rh_WRJ2': 0.0}
+
 
 # Keypoints 3D position median filter
 AVERAGE_N = 5
@@ -198,16 +212,15 @@ if __name__ == "__main__":
     hand_commander.set_max_velocity_scaling_factor(0.01)
     hand_commander.set_max_acceleration_scaling_factor(0.5)
 
+    hand_commander.move_to_joint_value_target_unsafe(joint_states=open_pose, time=1.0, wait=True, angle_degrees=False)
+    
+    # Start GUI
+    window.mainloop()
+
     # Start thread to send Shadow commands
     shadow_thread = Thread(target=send_shadow_commands)
     shadow_thread.start()
 
-    hand_commander.move_to_joint_value_target_unsafe(joint_states=open_pose, time=1.0, wait=True, angle_degrees=False)
-
-
     print('\n' + colored('"hand_commander_pinch" ROS node is ready!', 'green') + '\n')  
-    
-    # Start GUI
-    window.mainloop()
 
     rospy.spin()

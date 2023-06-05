@@ -8,8 +8,6 @@
 #*  Execute only if new keypoints positions                        *#
 #* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *#
 
-from dis import dis
-from os import stat
 import rospy
 import numpy as np
 import tkinter as tk
@@ -63,12 +61,26 @@ start_pinch_pose = {'rh_FFJ1': 0.0, 'rh_FFJ2': 0.0, 'rh_FFJ3': 1.5707, 'rh_FFJ4'
                     'rh_THJ1': -0.24833, 'rh_THJ2': 0.05104, 'rh_THJ3': 0.0, 'rh_THJ4': 1.21407, 'rh_THJ5': 0.44347, 
                     'rh_WRJ1': -0.698, 'rh_WRJ2': 0.0}
 
-pinch_pose = {'rh_FFJ1': 0.0, 'rh_FFJ2': 0.3, 'rh_FFJ3': 1.5707, 'rh_FFJ4': 0.35415, 
+pinch_pose = {'rh_FFJ1': 0.0, 'rh_FFJ2': 0.5, 'rh_FFJ3': 1.5707, 'rh_FFJ4': 0.35415, 
               'rh_LFJ1': 1.5707, 'rh_LFJ2': 1.5707, 'rh_LFJ3': 1.5707, 'rh_LFJ4': 0.0, 'rh_LFJ5': 0.0, 
               'rh_MFJ1': 1.5707, 'rh_MFJ2': 1.5707, 'rh_MFJ3': 1.5707, 'rh_MFJ4': 0.0, 
               'rh_RFJ1': 1.5707, 'rh_RFJ2': 1.5707, 'rh_RFJ3': 1.5707, 'rh_RFJ4': 0.0, 
-              'rh_THJ1': 0.05, 'rh_THJ2': 0.05104, 'rh_THJ3': 0.0, 'rh_THJ4': 1.21407, 'rh_THJ5': 0.44347, 
+              'rh_THJ1': -0.32294, 'rh_THJ2': -0.14608, 'rh_THJ3': 0.15715, 'rh_THJ4': 1.10, 'rh_THJ5': 0.65, 
               'rh_WRJ1': -0.698, 'rh_WRJ2': 0.0}
+
+# Pinch Pose 02
+# start_pinch_pose = {'rh_FFJ1': 0.0, 'rh_FFJ2': 0.0, 'rh_FFJ3': 1.5707, 'rh_FFJ4': 0.35415, 
+#                     'rh_LFJ1': 1.5707, 'rh_LFJ2': 1.5707, 'rh_LFJ3': 1.5707, 'rh_LFJ4': 0.0, 'rh_LFJ5': 0.0, 
+#                     'rh_MFJ1': 1.5707, 'rh_MFJ2': 1.5707, 'rh_MFJ3': 1.5707, 'rh_MFJ4': 0.0, 
+#                     'rh_RFJ1': 1.5707, 'rh_RFJ2': 1.5707, 'rh_RFJ3': 1.5707, 'rh_RFJ4': 0.0, 
+#                     'rh_THJ1': -0.24833, 'rh_THJ2': 0.05104, 'rh_THJ3': 0.0, 'rh_THJ4': 1.21407, 'rh_THJ5': 0.44347, 
+#                     'rh_WRJ1': -0.698, 'rh_WRJ2': 0.0}
+# pinch_pose = {'rh_FFJ1': 0.0, 'rh_FFJ2': 0.3, 'rh_FFJ3': 1.5707, 'rh_FFJ4': 0.35415, 
+#               'rh_LFJ1': 1.5707, 'rh_LFJ2': 1.5707, 'rh_LFJ3': 1.5707, 'rh_LFJ4': 0.0, 'rh_LFJ5': 0.0, 
+#               'rh_MFJ1': 1.5707, 'rh_MFJ2': 1.5707, 'rh_MFJ3': 1.5707, 'rh_MFJ4': 0.0, 
+#               'rh_RFJ1': 1.5707, 'rh_RFJ2': 1.5707, 'rh_RFJ3': 1.5707, 'rh_RFJ4': 0.0, 
+#               'rh_THJ1': 0.05, 'rh_THJ2': 0.05104, 'rh_THJ3': 0.0, 'rh_THJ4': 1.21407, 'rh_THJ5': 0.44347, 
+#               'rh_WRJ1': -0.698, 'rh_WRJ2': 0.0}
 
 # Keypoints 3D position median filter
 AVERAGE_N = 5
@@ -186,7 +198,7 @@ def openPose_CB(msg):
     
 
 if __name__ == "__main__":
-    rospy.init_node('hand_commander_pinch')
+    rospy.init_node('hand_commander_pinch_big_clip')
 
     # Create OpenPose subscriber
     rospy.Subscriber('hand_kp', HandKeypoints, openPose_CB, queue_size=1)
@@ -197,17 +209,16 @@ if __name__ == "__main__":
     # Set control velocity and acceleration
     hand_commander.set_max_velocity_scaling_factor(0.01)
     hand_commander.set_max_acceleration_scaling_factor(0.5)
+    
+    hand_commander.move_to_joint_value_target_unsafe(joint_states=start_pinch_pose, time=1.0, wait=True, angle_degrees=False)
+
+    # Start GUI
+    window.mainloop()
 
     # Start thread to send Shadow commands
     shadow_thread = Thread(target=send_shadow_commands)
     shadow_thread.start()
 
-    hand_commander.move_to_joint_value_target_unsafe(joint_states=open_pose, time=1.0, wait=True, angle_degrees=False)
-
-
-    print('\n' + colored('"hand_commander_pinch" ROS node is ready!', 'green') + '\n')  
-    
-    # Start GUI
-    window.mainloop()
+    print('\n' + colored('"hand_commander_pinch_big_clip" ROS node is ready!', 'green') + '\n')  
 
     rospy.spin()
