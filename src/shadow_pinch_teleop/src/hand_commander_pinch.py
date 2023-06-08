@@ -92,6 +92,7 @@ prev_keypoints = np.zeros(2*3)
 # Mutex
 mutex_kp = Lock()
 
+# Function to update GUI
 def update_gui():
     global state_str, dist
     global state_txt, dist_txt
@@ -100,7 +101,7 @@ def update_gui():
     dist_txt.set(round(dist,2))
     state_label.config(text=str(state_txt.get()))
     dist_label.config(text=str(dist_txt.get()) + 'cm\n')
-    window.after(100, update_gui)
+
 
 # Thread that send commands to Shadow Hand
 def send_shadow_commands():
@@ -168,6 +169,10 @@ def send_shadow_commands():
         
         # Update GUI
         update_gui()
+    
+    # If ROS dead
+    global window
+    window.quit()
 
 # OpenPose callback
 def openPose_CB(msg):
@@ -197,7 +202,11 @@ def openPose_CB(msg):
         for i in range(0, len(keypoints)):
             print(keypoints[i][0], keypoints[i][30], keypoints[i][-1])
     
-    
+
+# Start ROS thread
+def ros_spin():
+    rospy.spin()
+
 
 if __name__ == "__main__":
     rospy.init_node('hand_commander_pinch')
@@ -214,8 +223,9 @@ if __name__ == "__main__":
 
     hand_commander.move_to_joint_value_target_unsafe(joint_states=open_pose, time=1.0, wait=True, angle_degrees=False)
     
-    # Start GUI
-    window.mainloop()
+    # Start ROS thread
+    ros_thread = Thread(target=ros_spin)
+    ros_thread.start()
 
     # Start thread to send Shadow commands
     shadow_thread = Thread(target=send_shadow_commands)
@@ -223,4 +233,5 @@ if __name__ == "__main__":
 
     print('\n' + colored('"hand_commander_pinch" ROS node is ready!', 'green') + '\n')  
 
-    rospy.spin()
+    # Start GUI
+    window.mainloop()

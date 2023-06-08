@@ -58,7 +58,7 @@ start_pinch_pose = {'rh_FFJ1': 0.0, 'rh_FFJ2': 0.0, 'rh_FFJ3': 1.5707, 'rh_FFJ4'
                     'rh_LFJ1': 1.5707, 'rh_LFJ2': 1.5707, 'rh_LFJ3': 1.5707, 'rh_LFJ4': 0.0, 'rh_LFJ5': 0.0, 
                     'rh_MFJ1': 1.5707, 'rh_MFJ2': 1.5707, 'rh_MFJ3': 1.5707, 'rh_MFJ4': 0.0, 
                     'rh_RFJ1': 1.5707, 'rh_RFJ2': 1.5707, 'rh_RFJ3': 1.5707, 'rh_RFJ4': 0.0, 
-                    'rh_THJ1': -0.24833, 'rh_THJ2': 0.05104, 'rh_THJ3': 0.0, 'rh_THJ4': 1.21407, 'rh_THJ5': 0.44347, 
+                    'rh_THJ1': -0.40, 'rh_THJ2': -0.10, 'rh_THJ3': 0.0, 'rh_THJ4': 1.21407, 'rh_THJ5': 0.44347, 
                     'rh_WRJ1': -0.698, 'rh_WRJ2': 0.0}
 
 pinch_pose = {'rh_FFJ1': 0.0, 'rh_FFJ2': 0.5, 'rh_FFJ3': 1.5707, 'rh_FFJ4': 0.35415, 
@@ -90,6 +90,7 @@ prev_keypoints = np.zeros(2*3)
 # Mutex
 mutex_kp = Lock()
 
+# Function to update GUI
 def update_gui():
     global state_str, dist
     global state_txt, dist_txt
@@ -98,7 +99,7 @@ def update_gui():
     dist_txt.set(round(dist,2))
     state_label.config(text=str(state_txt.get()))
     dist_label.config(text=str(dist_txt.get()) + 'cm\n')
-    window.after(100, update_gui)
+
 
 # Thread that send commands to Shadow Hand
 def send_shadow_commands():
@@ -134,6 +135,8 @@ def send_shadow_commands():
         # Calculate distance between thumb and forefinger tips
         dist = np.sqrt( (th_x-ff_x)**2 + (th_y-ff_y)**2 +(th_z-ff_z)**2 ) * 100  # [m -> cm]
         
+        print('DIST:',dist)
+
         # Check invalid detection of keypoints
         if (dist == 0) or (dist > 20):
             continue
@@ -146,26 +149,30 @@ def send_shadow_commands():
         if (state == 0) and (dist < (TH1-HYST)):
             state = 1
             state_str = '[1] Start Pinch\n'
-            hand_commander.move_to_joint_value_target_unsafe(joint_states=start_pinch_pose, time=0.3, wait=False, angle_degrees=False)
+            #hand_commander.move_to_joint_value_target_unsafe(joint_states=start_pinch_pose, time=0.3, wait=False, angle_degrees=False)
             print('\n' + colored('STATE=1', 'yellow') + '\n')
         elif (state == 1) and (dist > (TH1+HYST)):
             state = 0
             state_str = '[0] Open Hand\n'
-            hand_commander.move_to_joint_value_target_unsafe(joint_states=open_pose, time=0.3, wait=False, angle_degrees=False)
+            #hand_commander.move_to_joint_value_target_unsafe(joint_states=start_pinch_pose, time=0.3, wait=False, angle_degrees=False)
             print('\n' + colored('STATE=0', 'green') + '\n')
         elif (state == 1) and (dist < (TH2-HYST)):
             state = 2
             state_str = '[2] Pinch\n'
-            hand_commander.move_to_joint_value_target_unsafe(joint_states=pinch_pose, time=0.3, wait=False, angle_degrees=False)
+            #hand_commander.move_to_joint_value_target_unsafe(joint_states=pinch_pose, time=0.3, wait=False, angle_degrees=False)
             print('\n' + colored('STATE=2', 'blue') + '\n')
         elif (state == 2) and (dist > (TH2+HYST)):
             state = 1
             state_str = '[1] Start Pinch\n'
-            hand_commander.move_to_joint_value_target_unsafe(joint_states=start_pinch_pose, time=0.3, wait=False, angle_degrees=False)
+            #hand_commander.move_to_joint_value_target_unsafe(joint_states=start_pinch_pose, time=0.3, wait=False, angle_degrees=False)
             print('\n' + colored('STATE=1', 'yellow') + '\n')
         
         # Update GUI
         update_gui()
+    
+    # If ROS dead
+    global window
+    window.quit()
 
 # OpenPose callback
 def openPose_CB(msg):
@@ -196,6 +203,10 @@ def openPose_CB(msg):
             print(keypoints[i][0], keypoints[i][30], keypoints[i][-1])
     
     
+# Start ROS thread
+def ros_spin():
+    rospy.spin()
+
 
 if __name__ == "__main__":
     rospy.init_node('hand_commander_pinch_big_clip')
@@ -212,13 +223,15 @@ if __name__ == "__main__":
     
     hand_commander.move_to_joint_value_target_unsafe(joint_states=start_pinch_pose, time=1.0, wait=True, angle_degrees=False)
 
-    # Start GUI
-    window.mainloop()
+    # Start ROS thread
+    ros_thread = Thread(target=ros_spin)
+    ros_thread.start()
 
     # Start thread to send Shadow commands
     shadow_thread = Thread(target=send_shadow_commands)
     shadow_thread.start()
-
+    
     print('\n' + colored('"hand_commander_pinch_big_clip" ROS node is ready!', 'green') + '\n')  
-
-    rospy.spin()
+    
+    # Start GUI
+    window.mainloop()
