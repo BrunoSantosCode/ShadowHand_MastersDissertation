@@ -1,0 +1,3 @@
+<launch>
+    <node name="ur5_tests" pkg="shadow_pinch_teleop" type="ur5_tests.py" output="screen" />
+</launch>

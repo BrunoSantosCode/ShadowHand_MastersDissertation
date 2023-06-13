@@ -1,0 +1,3 @@
+<launch>
+    <node name="get_trans_matrix" pkg="shadow_pinch_teleop" type="get_trans_matrix.py" output="screen" />
+</launch>
