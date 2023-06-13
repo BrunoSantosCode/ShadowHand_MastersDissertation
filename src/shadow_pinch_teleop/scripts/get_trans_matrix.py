@@ -62,29 +62,25 @@ if __name__ == "__main__":
     except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
         rospy.logerr('Failed to get UR5 pose in FFTip frame!')
 
-    # UR5 in FFTip frame Position:
-    trans = np.array([-0.03511002047890843, 0.010341343736855607, -0.43800045027971124])
-    # UR5 in FFTip frame Orientation:
-    rot = np.array([0.005110887124480915, -0.0007661677627845923, 0.9999866458110008, -4.407373799832884e-06])
-
     # Create fictitious FFTip frame
     tf_broadcaster.sendTransform((fftip_translation[0], fftip_translation[1], fftip_translation[2]),
                                  (fftip_rotation[0], fftip_rotation[1], fftip_rotation[2], fftip_rotation[3]),
-                                 rospy.Time(0),
+                                 rospy.Time.now(),
                                  'fictitious_fftip_frame',
                                  'ra_base_link')
 
     # Calculate UR5 position from FFTip position
     pose_in_fftip = PoseStamped()
-    pose_in_fftip.header.stamp = rospy.Time(0)
+    #pose_in_fftip.header.stamp = rospy.Time.now()
     pose_in_fftip.header.frame_id = 'fictitious_fftip_frame'
-    pose_in_fftip.pose.position.x = trans[0]
-    pose_in_fftip.pose.position.y = trans[1]
-    pose_in_fftip.pose.position.z = trans[2]
-    pose_in_fftip.pose.orientation.x = rot[0]
-    pose_in_fftip.pose.orientation.y = rot[1]
-    pose_in_fftip.pose.orientation.z = rot[2]
-    pose_in_fftip.pose.orientation.w = rot[3]
+    pose_in_fftip.pose.position.x = fftip_arm_translation[0]
+    pose_in_fftip.pose.position.y = fftip_arm_translation[1]
+    pose_in_fftip.pose.position.z = fftip_arm_translation[2]
+    pose_in_fftip.pose.orientation.x = fftip_arm_rotation[0]
+    pose_in_fftip.pose.orientation.y = fftip_arm_rotation[1]
+    pose_in_fftip.pose.orientation.z = fftip_arm_rotation[2]
+    pose_in_fftip.pose.orientation.w = fftip_arm_rotation[3]
+
     try:
         tf_listener.waitForTransform('ra_base_link', pose_in_fftip.header.frame_id, rospy.Time(0), rospy.Duration(10.0))
         transformed_pose = tf_listener.transformPose('ra_base_link', pose_in_fftip)
