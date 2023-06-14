@@ -1,91 +1,62 @@
 #!/usr/bin/env python3
 
 #* * * * * * * * * * * ur5_tests.py  * * * * * * * * * * *#
-#*  Receives a position in 'ra_base_link'                *#
-#*  Moves the robot to a position x.xx m above (z-axis)  *#
-#*  Moves the robot to the original position             *#
-#*  Loop                                                 *#
+#*  Performs Wiring Fitting task                         *#
+#*  Grabs the clip from stand                            *#
+#*  Inserts the clip in the respective hole              *#
+#*  Note: clip stand and hole poses in 'ra_base_link'    *#
 #* * * * * * * * * * * * * * * * * * * * * * * * * * * * *#
 
-from hashlib import new
 import tf
 import rospy
 import numpy as np
 from termcolor import colored
 from geometry_msgs.msg import PoseStamped
 from sr_robot_commander.sr_arm_commander import SrArmCommander
-
-# Init ROS
-rospy.init_node('ur5_tests')
-
-# Init TF Global Vars
-tf_listener = tf.TransformListener()
-tf_broadcaster = tf.TransformBroadcaster()
-
-# UR5 Poses
-
-# Default
-pose_default = PoseStamped()
-pose_default.pose.position.x = 0.2019239147313784
-pose_default.pose.position.y = 0.36016053406944526
-pose_default.pose.position.z = 0.5647490714802889
-pose_default.pose.orientation.x = 0.615540147210404
-pose_default.pose.orientation.y = -0.3569674764038792
-pose_default.pose.orientation.z = -0.6151713797376471
-pose_default.pose.orientation.w = -0.3394830209505622
-
-# Arm up:
-pose_up = PoseStamped()
-pose_up.pose.position.x = -0.0164443639556814
-pose_up.pose.position.y = 0.19123849668391044
-pose_up.pose.position.z = 1.00
-pose_up.pose.orientation.x = 0.7018344846564541
-pose_up.pose.orientation.y = 0.7122998537692892
-pose_up.pose.orientation.z = 0.005386603930283156
-pose_up.pose.orientation.w = 0.0053159162293153995
-
-# Pose01:
-pose_01 = PoseStamped()
-pose_01.pose.position.x = 0.3320153763417186
-pose_01.pose.position.y = 0.20802650428714126
-pose_01.pose.position.z = 0.6431376949278869
-pose_01.pose.orientation.x = -0.005796355932569323
-pose_01.pose.orientation.y = 0.8000808997663621
-pose_01.pose.orientation.z = 0.5947827268721892
-pose_01.pose.orientation.w = -0.07791318182075829
-
-# Pose02:
-pose_02 = PoseStamped()
-pose_02.pose.position.x = 0.16396263951712656
-pose_02.pose.position.y = 0.19097405811385304
-pose_02.pose.position.z = 0.6593009918338222
-pose_02.pose.orientation.x = -0.0073194590015851005
-pose_02.pose.orientation.y = 0.7998363082094895
-pose_02.pose.orientation.z = 0.5953732593201085
-pose_02.pose.orientation.w = -0.07575610652805236
-
-# PoseFFTip (default)
-pose_FFTip = PoseStamped()
-pose_FFTip.pose.position.x = 0.21288835980376392
-pose_FFTip.pose.position.y = 0.38965303238597004
-pose_FFTip.pose.position.z = 0.18223539124202698
-pose_FFTip.pose.orientation.x = 0.9026200941501608
-pose_FFTip.pose.orientation.y = 0.08244953102591612
-pose_FFTip.pose.orientation.z = -0.19145898018253993
-pose_FFTip.pose.orientation.w = -0.376593281110302
-
-# PoseFFTip02 (default)
-pose_FFTip_02 = PoseStamped()
-pose_FFTip_02.pose.position.x = 0.8534402081891853
-pose_FFTip_02.pose.position.y = 0.41858155564459504
-pose_FFTip_02.pose.position.z = 0.41914410905796307
-pose_FFTip_02.pose.orientation.x = -0.5380279755738201
-pose_FFTip_02.pose.orientation.y = -0.467008903941789
-pose_FFTip_02.pose.orientation.z = -0.25186964677075774
-pose_FFTip_02.pose.orientation.w = 0.654973482039235
+from sr_robot_commander.sr_hand_commander import SrHandCommander
 
 
-# Function to get initial clipping pose based on the clip hole pose
+# CLIP Poses
+
+# Grab clip
+clip_stand_01 = PoseStamped()
+clip_stand_01.pose.position.x = 0.6283771394157185
+clip_stand_01.pose.position.y = 0.2069146791188278
+clip_stand_01.pose.position.z = 0.09206483652527714
+clip_stand_01.pose.orientation.x = 0.9890882607771632
+clip_stand_01.pose.orientation.y = 0.09368992622008868
+clip_stand_01.pose.orientation.z = -0.06156698328073961
+clip_stand_01.pose.orientation.w = -0.09558303556274649
+
+# Insert clip
+clip_hole_01 = PoseStamped()
+clip_hole_01.pose.position.x = 0.8870281551963635
+clip_hole_01.pose.position.y = 0.13932891868554642
+clip_hole_01.pose.position.z = 0.3079324033128754
+clip_hole_01.pose.orientation.x = 0.7393360881337623
+clip_hole_01.pose.orientation.y = 0.0212294594171611
+clip_hole_01.pose.orientation.z = 0.6320528796610841
+clip_hole_01.pose.orientation.w = -0.23117226509261704
+
+# HAND Poses
+
+# Preparing to pinch clip
+start_pinch_pose = {'rh_FFJ1': 0.0, 'rh_FFJ2': 0.0, 'rh_FFJ3': 1.5707, 'rh_FFJ4': 0.35415, 
+                    'rh_LFJ1': 1.5707, 'rh_LFJ2': 1.5707, 'rh_LFJ3': 1.5707, 'rh_LFJ4': 0.0, 'rh_LFJ5': 0.0, 
+                    'rh_MFJ1': 1.5707, 'rh_MFJ2': 1.5707, 'rh_MFJ3': 1.5707, 'rh_MFJ4': 0.0, 
+                    'rh_RFJ1': 1.5707, 'rh_RFJ2': 1.5707, 'rh_RFJ3': 1.5707, 'rh_RFJ4': 0.0, 
+                    'rh_THJ1': -0.40, 'rh_THJ2': -0.10, 'rh_THJ3': 0.0, 'rh_THJ4': 1.21407, 'rh_THJ5': 0.44347, 
+                    'rh_WRJ1': -0.698, 'rh_WRJ2': 0.0}
+
+# Pinch clip
+pinch_pose = {'rh_FFJ1': 0.0, 'rh_FFJ2': 0.5, 'rh_FFJ3': 1.5707, 'rh_FFJ4': 0.35415, 
+              'rh_LFJ1': 1.5707, 'rh_LFJ2': 1.5707, 'rh_LFJ3': 1.5707, 'rh_LFJ4': 0.0, 'rh_LFJ5': 0.0, 
+              'rh_MFJ1': 1.5707, 'rh_MFJ2': 1.5707, 'rh_MFJ3': 1.5707, 'rh_MFJ4': 0.0, 
+              'rh_RFJ1': 1.5707, 'rh_RFJ2': 1.5707, 'rh_RFJ3': 1.5707, 'rh_RFJ4': 0.0, 
+              'rh_THJ1': -0.32294, 'rh_THJ2': -0.14608, 'rh_THJ3': 0.15715, 'rh_THJ4': 1.10, 'rh_THJ5': 0.65, 
+              'rh_WRJ1': -0.698, 'rh_WRJ2': 0.0}
+
+
 def get_start_pose(final_pose: PoseStamped, dist):
     """
         Computes the initial clipping pose for a given clip hole pose. It returns a PoseStamped.
@@ -117,6 +88,9 @@ def get_start_pose(final_pose: PoseStamped, dist):
     pose_in_fftip.pose.orientation.z = fftip_arm_rotation[2]
     pose_in_fftip.pose.orientation.w = fftip_arm_rotation[3]
 
+    # TO DO: Adjust the clip adapter position in relation to the FFTip
+    # TO DO: Adjust the clip hole position in relation to the FFTip
+
     # Get position in 'ra_base_link' frame
     tf_listener.waitForTransform('ra_base_link', pose_in_fftip.header.frame_id, rospy.Time(0), rospy.Duration(1.0))
     new_pose = tf_listener.transformPose('ra_base_link', pose_in_fftip)
@@ -130,37 +104,92 @@ def get_start_pose(final_pose: PoseStamped, dist):
     return new_pose
 
 
+def move_arm_to(final_pose: PoseStamped, dist):
+    """
+        Moves UR5 to the specified pose
+        @param final_pose - A given pose of type PoseStamped.
+        @param dist - distance in meters to pre-position the UR5
+    """
+    global arm_commander
+
+    arm_go_to = get_start_pose(final_pose, dist)
+    #print(arm_go_to.pose.position)
+    #print(arm_go_to.pose.orientation)
+    method = 3
+    if method == 1:
+        target_joints = arm_commander.get_ik(arm_go_to, avoid_collisions=True)
+        if target_joints == None:
+            exit(-1)
+        arm_commander.move_to_joint_value_target(target_joints)
+    elif method == 2:
+        arm_commander.plan_to_pose_target(arm_go_to, 'ra_flange')
+        arm_commander.execute()
+    elif method == 3:
+        arm_commander.plan_to_pose_target(arm_go_to, 'ra_flange', alternative_method=True)
+        arm_commander.execute()
+    elif method == 4:
+        arm_commander.move_to_pose_target(arm_go_to)
+    
+
 if __name__ == "__main__":
-    # Shadow Arm commander
+    global tf_listener, tf_broadcaster
+    global arm_commander
+
+    # Init ROS
+    rospy.init_node('ur5_tests')
+
+    # Init TF Global Vars
+    tf_listener = tf.TransformListener()
+    tf_broadcaster = tf.TransformBroadcaster()
+
+    # Shadow Arm/Hand commander
     arm_commander = SrArmCommander(name='right_arm')
+    hand_commander = SrHandCommander(name='right_hand')
 
     # Set control velocity and acceleration
-    arm_commander.set_max_velocity_scaling_factor(0.1)
-    arm_commander.set_max_acceleration_scaling_factor(0.1)
+    hand_commander.set_max_velocity_scaling_factor(0.5)
+    hand_commander.set_max_acceleration_scaling_factor(0.5)
+    arm_commander.set_max_velocity_scaling_factor(0.5)
+    arm_commander.set_max_acceleration_scaling_factor(0.5)
 
-    print('\n' + colored('"ur5_tests" ROS node is ready!', 'green') + '\n')  
+    print('\n' + colored('"ur5_tests" ROS node is ready!', 'green') + '\n') 
+
+    hand_commander.move_to_joint_value_target_unsafe(joint_states=start_pinch_pose, time=1.0, wait=True, angle_degrees=False) 
 
     while not rospy.is_shutdown():
-        # Calculate Inverse Kinematics
-        new_pose = get_start_pose(pose_FFTip_02, 0.00)
-        print(new_pose.pose.orientation)
-        target_joints = arm_commander.get_ik(new_pose, avoid_collisions=True)
 
-        # Move to target joints
-        arm_commander.move_to_joint_value_target(target_joints)
+        #1 GET THE CLIP
 
-        print('Pose 1 DONE: Sleeping for 2 sec...')
-        rospy.sleep(2.0)
+        move_arm_to(clip_stand_01, 0.05)
+        move_arm_to(clip_stand_01, 0.05)
+        print('Preparing to grab the clip')
+        rospy.sleep(1.0)
 
-        # Calculate Inverse Kinematics
-        new_pose2 = get_start_pose(pose_FFTip_02, 0.10)
-        print(new_pose2.pose.orientation)
-        target_joints2 = arm_commander.get_ik(new_pose2, avoid_collisions=True)
-    
-        # Move to target joints
-        arm_commander.move_to_joint_value_target(target_joints2)
+        move_arm_to(clip_stand_01, 0.0)
+        move_arm_to(clip_stand_01, 0.0)
+        print('Clip grabed')
+        rospy.sleep(1.0)
 
-        print('Pose 2 DONE: Sleeping for 2 sec...')
-        rospy.sleep(2.0)
+        move_arm_to(clip_stand_01, 0.05)
+        move_arm_to(clip_stand_01, 0.05)
+        print('Moved back')
+        rospy.sleep(1.0)
+
+        #2 CLIPPING TASK
+
+        move_arm_to(clip_hole_01, 0.07)
+        move_arm_to(clip_hole_01, 0.07)
+        print('Preparing to clip')
+        rospy.sleep(1.0)
+
+        move_arm_to(clip_hole_01, 0.0)
+        move_arm_to(clip_hole_01, 0.0)
+        print('Clip in place')
+        rospy.sleep(1.0)
+
+        move_arm_to(clip_hole_01, 0.07)
+        move_arm_to(clip_hole_01, 0.07)
+        print('Iteration completed!')
+        rospy.sleep(1.0)
 
     rospy.spin()
