@@ -66,42 +66,55 @@ def get_start_pose(final_pose: PoseStamped, dist):
     global tf_listener, tf_broadcaster
 
     # UR5 in FFTip frame Pose
-    tf_listener.waitForTransform('rh_fftip', 'ra_flange', rospy.Time(), rospy.Duration(1.0))
-    (fftip_arm_translation, fftip_arm_rotation) = tf_listener.lookupTransform('rh_fftip', 'ra_flange', rospy.Time())
+    #tf_listener.waitForTransform('rh_fftip', 'ra_flange', rospy.Time(), rospy.Duration(1.0))
+    #(fftip_arm_translation, fftip_arm_rotation) = tf_listener.lookupTransform('rh_fftip', 'ra_flange', rospy.Time())
 
-    # Create fictitious FFTip frame
+    # Create fictitious Clip frame
     tf_broadcaster.sendTransform((final_pose.pose.position.x, final_pose.pose.position.y, final_pose.pose.position.z),
                                  (final_pose.pose.orientation.x, final_pose.pose.orientation.y, final_pose.pose.orientation.z, final_pose.pose.orientation.w),
                                  rospy.Time.now(),
-                                 'fictitious_fftip_frame',
+                                 'fictitious_clip_frame',
                                  'ra_base_link')
     
-    # Calculate UR5 position from FFTip position
-    pose_in_fftip = PoseStamped()
-    #pose_in_fftip.header.stamp = rospy.Time.now()
-    pose_in_fftip.header.frame_id = 'fictitious_fftip_frame'
-    pose_in_fftip.pose.position.x = fftip_arm_translation[0]
-    pose_in_fftip.pose.position.y = fftip_arm_translation[1]
-    pose_in_fftip.pose.position.z = fftip_arm_translation[2] - dist
-    pose_in_fftip.pose.orientation.x = fftip_arm_rotation[0]
-    pose_in_fftip.pose.orientation.y = fftip_arm_rotation[1]
-    pose_in_fftip.pose.orientation.z = fftip_arm_rotation[2]
-    pose_in_fftip.pose.orientation.w = fftip_arm_rotation[3]
+    # Calculate UR5 position from Clip position
+    pose_in_clip_frame = PoseStamped()
+    #pose_in_clip_frame.header.stamp = rospy.Time.now()
+    pose_in_clip_frame.header.frame_id = 'fictitious_clip_frame'
+    pose_in_clip_frame.pose.position.x = -0.14212348114334017
+    pose_in_clip_frame.pose.position.y = -0.24415732893174702
+    pose_in_clip_frame.pose.position.z = -0.2613158276162346 - dist
+    pose_in_clip_frame.pose.orientation.x = 0.20611992445119792
+    pose_in_clip_frame.pose.orientation.y = -0.2702029129684741
+    pose_in_clip_frame.pose.orientation.z = 0.5082802656970709
+    pose_in_clip_frame.pose.orientation.w = 0.7913002805954882
 
-    # TO DO: Adjust the clip adapter position in relation to the FFTip
-    # TO DO: Adjust the clip hole position in relation to the FFTip
+    # TO DO: Adjust the clip adapter position in relation to the Clip
+    # TO DO: Adjust the clip hole position in relation to the Clip
 
     # Get position in 'ra_base_link' frame
-    tf_listener.waitForTransform('ra_base_link', pose_in_fftip.header.frame_id, rospy.Time(0), rospy.Duration(1.0))
-    new_pose = tf_listener.transformPose('ra_base_link', pose_in_fftip)
+    tf_listener.waitForTransform('ra_base_link', pose_in_clip_frame.header.frame_id, rospy.Time(0), rospy.Duration(1.0))
+    new_pose = tf_listener.transformPose('ra_base_link', pose_in_clip_frame)
 
     tf_broadcaster.sendTransform((new_pose.pose.position.x, new_pose.pose.position.y, new_pose.pose.position.z),
                                  (new_pose.pose.orientation.x, new_pose.pose.orientation.y, new_pose.pose.orientation.z, new_pose.pose.orientation.w),
                                  rospy.Time.now(),
-                                 'fictitious2_fftip_frame',
+                                 'fictitious_ur5_frame',
                                  'ra_base_link')
 
     return new_pose
+
+
+def set_hand_pose(pose: str):
+    """
+        Sets a pre-defined pose for Shadow Hand
+        @param pose - A given pose 'grab' or 'release'.
+    """
+    if pose == 'grab':
+        hand_commander.move_to_joint_value_target_unsafe(joint_states=pinch_pose, time=1.0, wait=True, angle_degrees=False)
+    elif pose == 'release':
+        hand_commander.move_to_joint_value_target_unsafe(joint_states=start_pinch_pose, time=1.0, wait=True, angle_degrees=False)
+    else:
+        print('\n' + colored('ERROR: "' + pose + '" hand pose is not defined!', 'red') + '\n') 
 
 
 def move_arm_to(final_pose: PoseStamped, dist):
@@ -163,16 +176,20 @@ if __name__ == "__main__":
         move_arm_to(clip_stand_01, 0.05)
         move_arm_to(clip_stand_01, 0.05)
         print('Preparing to grab the clip')
+        if rospy.is_shutdown(): break
         rospy.sleep(1.0)
 
         move_arm_to(clip_stand_01, 0.0)
         move_arm_to(clip_stand_01, 0.0)
+        set_hand_pose('grab')
         print('Clip grabed')
+        if rospy.is_shutdown(): break
         rospy.sleep(1.0)
 
         move_arm_to(clip_stand_01, 0.05)
         move_arm_to(clip_stand_01, 0.05)
         print('Moved back')
+        if rospy.is_shutdown(): break
         rospy.sleep(1.0)
 
         #2 CLIPPING TASK
@@ -180,16 +197,20 @@ if __name__ == "__main__":
         move_arm_to(clip_hole_01, 0.07)
         move_arm_to(clip_hole_01, 0.07)
         print('Preparing to clip')
+        if rospy.is_shutdown(): break
         rospy.sleep(1.0)
 
         move_arm_to(clip_hole_01, 0.0)
         move_arm_to(clip_hole_01, 0.0)
         print('Clip in place')
+        if rospy.is_shutdown(): break
         rospy.sleep(1.0)
 
+        set_hand_pose('release')
         move_arm_to(clip_hole_01, 0.07)
         move_arm_to(clip_hole_01, 0.07)
         print('Iteration completed!')
+        if rospy.is_shutdown(): break
         rospy.sleep(1.0)
 
     rospy.spin()
