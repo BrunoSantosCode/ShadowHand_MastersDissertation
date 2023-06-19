@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 #* * * * * * * * * * * get_trans_matrix.py * * * * * * * * * *#
-#*  Get transformation matrix from rh_fftip to ra_tool0      *#
+#*  Get transformation matrix from rh_fftip to ra_flange      *#
 #* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *#
 
 import tf
@@ -38,8 +38,8 @@ if __name__ == "__main__":
 
     # Get UR5 End-Effector Pose
     try:
-        tf_listener.waitForTransform('ra_base_link', 'ra_tool0', rospy.Time(), rospy.Duration(1.0))
-        (arm_translation, arm_rotation) = tf_listener.lookupTransform('ra_base_link', 'ra_tool0', rospy.Time())
+        tf_listener.waitForTransform('ra_base_link', 'ra_flange', rospy.Time(), rospy.Duration(1.0))
+        (arm_translation, arm_rotation) = tf_listener.lookupTransform('ra_base_link', 'ra_flange', rospy.Time())
         arm_pose = tf.TransformerROS().fromTranslationRotation(arm_translation, arm_rotation)
         print('UR5 Position:')
         print(arm_translation)
@@ -49,10 +49,10 @@ if __name__ == "__main__":
     except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
         rospy.logerr('Failed to get UR5 end-effector pose!')
 
-    # FFTip in ra_tool0 frame
+    # FFTip in ra_flange frame
     try:
-        tf_listener.waitForTransform('rh_fftip', 'ra_tool0', rospy.Time(), rospy.Duration(1.0))
-        (fftip_arm_translation, fftip_arm_rotation) = tf_listener.lookupTransform('rh_fftip', 'ra_tool0', rospy.Time())
+        tf_listener.waitForTransform('rh_fftip', 'ra_flange', rospy.Time(), rospy.Duration(1.0))
+        (fftip_arm_translation, fftip_arm_rotation) = tf_listener.lookupTransform('rh_fftip', 'ra_flange', rospy.Time())
         fftip_arm_pose = tf.TransformerROS().fromTranslationRotation(fftip_arm_translation, fftip_arm_rotation)
         print('UR5 in FFTip frame Position:')
         print(fftip_arm_translation)

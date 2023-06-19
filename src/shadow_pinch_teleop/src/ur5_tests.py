@@ -9,7 +9,6 @@
 
 import tf
 import rospy
-import numpy as np
 from termcolor import colored
 from geometry_msgs.msg import PoseStamped
 from sr_robot_commander.sr_arm_commander import SrArmCommander
@@ -175,20 +174,20 @@ if __name__ == "__main__":
 
         move_arm_to(clip_stand_01, 0.05)
         move_arm_to(clip_stand_01, 0.05)
-        print('Preparing to grab the clip')
+        print(colored('Preparing to grab the clip', 'green'))
         if rospy.is_shutdown(): break
         rospy.sleep(1.0)
 
         move_arm_to(clip_stand_01, 0.0)
         move_arm_to(clip_stand_01, 0.0)
         set_hand_pose('grab')
-        print('Clip grabed')
+        print(colored('Clip grabed', 'green'))
         if rospy.is_shutdown(): break
         rospy.sleep(1.0)
 
         move_arm_to(clip_stand_01, 0.05)
         move_arm_to(clip_stand_01, 0.05)
-        print('Moved back')
+        print(colored('Moved back', 'green'))
         if rospy.is_shutdown(): break
         rospy.sleep(1.0)
 
@@ -196,20 +195,20 @@ if __name__ == "__main__":
 
         move_arm_to(clip_hole_01, 0.07)
         move_arm_to(clip_hole_01, 0.07)
-        print('Preparing to clip')
+        print(colored('Preparing to clip', 'green'))
         if rospy.is_shutdown(): break
         rospy.sleep(1.0)
 
         move_arm_to(clip_hole_01, 0.0)
         move_arm_to(clip_hole_01, 0.0)
-        print('Clip in place')
+        print(colored('Clip in place', 'green'))
         if rospy.is_shutdown(): break
         rospy.sleep(1.0)
 
         set_hand_pose('release')
         move_arm_to(clip_hole_01, 0.07)
         move_arm_to(clip_hole_01, 0.07)
-        print('Iteration completed!')
+        print(colored('Iteration completed!', 'green'))
         if rospy.is_shutdown(): break
         rospy.sleep(1.0)
 
