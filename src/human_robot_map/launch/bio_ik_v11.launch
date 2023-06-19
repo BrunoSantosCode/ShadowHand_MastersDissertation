@@ -1,0 +1,4 @@
+<launch>
+    <node name="bio_ik_v11" pkg="human_robot_map" type="bio_ik_v11" output="screen" />
+    <node name="command_ur5_shadow" pkg="human_robot_map" type="command_ur5_shadow.py" output="screen" />
+</launch>

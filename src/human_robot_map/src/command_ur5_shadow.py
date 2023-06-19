@@ -66,7 +66,7 @@ def jointsCB(msg: Float64MultiArray):
         arm_hand_pos.update({'ra_shoulder_pan_joint': this_joints[0], 'ra_shoulder_lift_joint': this_joints[1], 'ra_elbow_joint': this_joints[2]})
         arm_hand_pos.update({'ra_wrist_1_joint': this_joints[3], 'ra_wrist_2_joint': this_joints[4], 'ra_wrist_3_joint': this_joints[5]})
     else:
-        arm_hand_pos.update({'ra_shoulder_pan_joint': -2.585, 'ra_shoulder_lift_joint': -1.245, 'ra_elbow_joint': 2.00})
+        arm_hand_pos.update({'ra_shoulder_pan_joint': 0.0, 'ra_shoulder_lift_joint': -1.245, 'ra_elbow_joint': 2.00})
         arm_hand_pos.update({'ra_wrist_1_joint': -0.728, 'ra_wrist_2_joint': 1.571, 'ra_wrist_3_joint': -3.141})
 
     # Shadow Hand    
