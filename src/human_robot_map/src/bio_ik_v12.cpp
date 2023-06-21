@@ -490,10 +490,6 @@ int main(int argc, char **argv)
     marker_pub = nh.advertise<visualization_msgs::MarkerArray>("hand_keypoints_marker", 1);
     marker_pub_shadow = nh.advertise<visualization_msgs::MarkerArray>("shadow_keypoints_marker", 1);
 
-    ros::Publisher planning_scene_diff_publisher = nh.advertise<moveit_msgs::PlanningScene>("planning_scene", 1);
-    ros::WallDuration sleep_t(0.5);
-    planning_scene_diff_publisher.publish(planning_scene);
-
     // Ready 
     std::cout << "\n\033[1;32m\"bio_ik_v10\" ROS node is ready!\033[0m\n" << std::endl;
 
