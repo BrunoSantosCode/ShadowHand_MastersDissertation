@@ -62,7 +62,7 @@ def jointsCB(msg: Float64MultiArray):
     arm_hand_pos = arm_hand_commander.get_joints_position()
 
     # UR5
-    if False:
+    if True:
         arm_hand_pos.update({'ra_shoulder_pan_joint': this_joints[0], 'ra_shoulder_lift_joint': this_joints[1], 'ra_elbow_joint': this_joints[2]})
         arm_hand_pos.update({'ra_wrist_1_joint': this_joints[3], 'ra_wrist_2_joint': this_joints[4], 'ra_wrist_3_joint': this_joints[5]})
     else:
@@ -77,7 +77,7 @@ def jointsCB(msg: Float64MultiArray):
     arm_hand_pos.update({'rh_RFJ4': this_joints[21], 'rh_RFJ3': this_joints[22], 'rh_RFJ2': this_joints[23], 'rh_RFJ1': this_joints[24]})
     arm_hand_pos.update({'rh_THJ5': this_joints[25], 'rh_THJ4': this_joints[26], 'rh_THJ3': this_joints[27], 'rh_THJ2': this_joints[28], 'rh_THJ1': this_joints[29]})
 
-    arm_hand_commander.move_to_joint_value_target_unsafe(joint_states=arm_hand_pos, time=0.3, wait=True, angle_degrees=False)
+    arm_hand_commander.move_to_joint_value_target_unsafe(joint_states=arm_hand_pos, time=0.3, wait=False, angle_degrees=False)
 
     print('\n' + colored('Command sent to Shadow Hand!', 'green') + '\n') 
     

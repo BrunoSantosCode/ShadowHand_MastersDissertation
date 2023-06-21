@@ -1,4 +1,4 @@
-/* * * * * * * * * * * bio_ik_v10.cpp * * * * * * * * * * */
+/* * * * * * * * * * * * bio_ik_v12.h * * * * * * * * * * */
 /*  Receives HandKeypoints.msg from "hand_kp" topic       */
 /*  Uses BioIK to calculate inverse kinematics (thread1)  */
 /*  Send joint angles to Shadow Hand (thread2)            */
@@ -13,7 +13,8 @@
 /*  Sends Shadow Hand commands by SrHandCommander         */
 /*  MapShadowHand after median                            */
 /*  Redefinition of Goals                                 */
-/*  + Coupled control of UR5 and Shadow Hand              */
+/*  Coupled control of UR5 and Shadow Hand                */
+/*  + Collisions avoidance                                */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * *  */
 
 #include <ros/ros.h>
@@ -58,7 +59,12 @@ tf2_ros::Buffer tfBuffer, tfBuffer2;
 std::string base_frame;
 moveit::planning_interface::MoveGroupInterface* mgi_pointer;
 const moveit::core::JointModelGroup* joint_model_group;
+moveit::core::RobotState* robot_state_pointer;
 planning_scene::PlanningScene* planning_scene_pointer;
+
+collision_detection::CollisionRequest collision_request;
+collision_detection::CollisionResult collision_result;
+std::vector<std::string> collision_pairs;
 
 std::vector<std::vector<Eigen::Vector3d>> kp_positions;
 std::vector<Eigen::Vector3d> prev_kp;

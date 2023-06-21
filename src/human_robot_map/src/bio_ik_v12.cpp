@@ -1,4 +1,4 @@
-/* * * * * * * * * * * bio_ik_v11.cpp * * * * * * * * * * */
+/* * * * * * * * * * * bio_ik_v12.cpp * * * * * * * * * * */
 /*  Receives HandKeypoints.msg from "hand_kp" topic       */
 /*  Uses BioIK to calculate inverse kinematics (thread1)  */
 /*  Send joint angles to Shadow Hand (thread2)            */
@@ -13,10 +13,11 @@
 /*  Sends Shadow Hand commands by SrHandCommander         */
 /*  MapShadowHand after median                            */
 /*  Redefinition of Goals                                 */
-/*  + Coupled control of UR5 and Shadow Hand              */
+/*  Coupled control of UR5 and Shadow Hand                */
+/*  + Collisions avoidance                                */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * *  */
 
-#include <bio_ik_v10.h>
+#include <bio_ik_v12.h>
 
 // Thread to compute inverse kinematics [BioIK]
 void bio_ik_solver()
@@ -252,10 +253,11 @@ void bio_ik_solver()
         ik_options.goals.emplace_back(new bio_ik::CenterJointsGoal(CenterJointsWeight));
 
         // Get current robot state
-        robot_state::RobotState& current_state = (*planning_scene_pointer).getCurrentStateNonConst();   
+        robot_state::RobotState& current_state = (*planning_scene_pointer).getCurrentStateNonConst(); 
+        (*robot_state_pointer) = current_state;  
 
         // Set BioIK solver
-        bool found_ik = current_state.setFromIK(
+        bool found_ik = (*robot_state_pointer).setFromIK(
                             joint_model_group,             // UR5 + Shadow Hand joints
                             EigenSTL::vector_Isometry3d(), // no explicit poses here
                             std::vector<std::string>(),
@@ -273,13 +275,70 @@ void bio_ik_solver()
         std::vector<double> joint_angles;
         std_msgs::Float64MultiArray joint_angles_msg;
         if (found_ik){
-            current_state.copyJointGroupPositions(joint_model_group, joint_angles);
+            (*robot_state_pointer).copyJointGroupPositions(joint_model_group, joint_angles);
+            (*mgi_pointer).setJointValueTarget(joint_angles);
+
+            // Get collisions
+            collision_request.contacts = true;
+            collision_request.max_contacts = 1000;
+            collision_result.clear();
+
+            current_state = (*mgi_pointer).getJointValueTarget();
+            (*planning_scene_pointer).checkSelfCollision(collision_request, collision_result);
+            collision_detection::CollisionResult::ContactMap::const_iterator it;
+            collision_pairs.clear();
+
+            for(it = collision_result.contacts.begin();	it != collision_result.contacts.end(); ++it){
+                collision_pairs.push_back(it->first.first.c_str());
+                collision_pairs.push_back(it->first.second.c_str());
+                ROS_WARN("Collision between: %s and %s, need to reIK", it->first.first.c_str(), it->first.second.c_str());
+            }
+
+            if (collision_pairs.size() > 0 ){
+                // self_collision_free goal
+                double collision_weight = 1;
+                ik_options.goals.emplace_back(new Collision_freeGoal(collision_pairs, collision_weight));
+
+                // set ik solver again
+                bool refound_ik = (*robot_state_pointer).setFromIK(
+                                    joint_model_group,             // UR5 + Shadow Hand joints
+                                    EigenSTL::vector_Isometry3d(), // no explicit poses here
+                                    std::vector<std::string>(),
+                                    timeout+0.1,
+                                    moveit::core::GroupStateValidityCallbackFn(),
+                                    ik_options
+                                );
+
+                if (refound_ik){
+                    (*robot_state_pointer).copyJointGroupPositions(joint_model_group, joint_angles);
+                    (*mgi_pointer).setJointValueTarget(joint_angles);
+
+                    // get collision pairs then use collision free ik
+                    collision_request.contacts = true;
+                    collision_request.max_contacts = 1000;
+                    collision_result.clear();
+
+                    current_state = (*mgi_pointer).getJointValueTarget();
+                    (*planning_scene_pointer).checkSelfCollision(collision_request, collision_result);
+                    if (collision_result.contacts.size() > 0){
+                        ROS_ERROR("Failed to get collision_free result, skip to next one");
+                        continue;
+                    }
+                }
+                else{
+                    std::cout << "Did not find reIK solution" << std::endl;
+                    continue;
+                }
+            }
             joint_angles_msg.data = joint_angles;
         }
         else
             std::cout << "Did not find IK solution" << std::endl;
 
         if (joint_angles.size() < 10){
+            // Reset planning goals
+            for (int j = 0; j <ik_options.goals.size();j++)
+                ik_options.goals[j].reset();
             continue;
         }
 
@@ -391,9 +450,11 @@ int main(int argc, char **argv)
     shape_msgs::SolidPrimitive primitive;
     primitive.type = primitive.BOX;
     primitive.dimensions.resize(3);
+    // Define the size of the box in meters
     primitive.dimensions[primitive.BOX_X] = 2;
     primitive.dimensions[primitive.BOX_Y] = 2;
     primitive.dimensions[primitive.BOX_Z] = 0.1;
+    // Define the pose of the box (relative to the frame_id)
     geometry_msgs::Pose box_pose;
     box_pose.orientation.w = 1.0;
     box_pose.position.x = 0;
@@ -402,12 +463,12 @@ int main(int argc, char **argv)
     collision_object.primitives.push_back(primitive);
     collision_object.primitive_poses.push_back(box_pose);
     collision_object.operation = collision_object.ADD;
-    moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
-    planning_scene_interface.applyCollisionObject(collision_object);
-
+    // Add the collision object to the scene
+    planning_scene.applyCollisionObject(collision_object);
     
     // Define pointers to access vars in callback
     mgi_pointer = &mgi;
+    robot_state_pointer = &robot_state;
     planning_scene_pointer = &planning_scene;
 
     // Init prev_kp and kp_positions
@@ -428,6 +489,10 @@ int main(int argc, char **argv)
     joints_shadow = nh.advertise<std_msgs::Float64MultiArray>("ur5_shadow_joints", 1);
     marker_pub = nh.advertise<visualization_msgs::MarkerArray>("hand_keypoints_marker", 1);
     marker_pub_shadow = nh.advertise<visualization_msgs::MarkerArray>("shadow_keypoints_marker", 1);
+
+    ros::Publisher planning_scene_diff_publisher = nh.advertise<moveit_msgs::PlanningScene>("planning_scene", 1);
+    ros::WallDuration sleep_t(0.5);
+    planning_scene_diff_publisher.publish(planning_scene);
 
     // Ready 
     std::cout << "\n\033[1;32m\"bio_ik_v10\" ROS node is ready!\033[0m\n" << std::endl;

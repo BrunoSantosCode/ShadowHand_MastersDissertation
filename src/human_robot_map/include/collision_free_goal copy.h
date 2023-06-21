@@ -26,11 +26,12 @@ public:
       double cost = 0.0;
 
       for (auto &p : mCollisionPairs) {
-          double d = context.getLinkFrame(p[0]).getPosition().distance(
-          context.getLinkFrame(p[1]).getPosition());
+          double d = context.getLinkFrame(p[0]).getPosition().distance(context.getLinkFrame(p[1]).getPosition());
           // d is the bigger the better
-          d = std::max(0.0, mCollisionRadius - d);
-          cost += d * d * 10;
+          d = std::max(0.0, (mCollisionRadius - d)*(mCollisionRadius - d));
+          cost = d;
+          //d = std::max(0.0, (mCollisionRadius - d));
+          //cost += d * d * 10;
       }
       return cost;
     }
