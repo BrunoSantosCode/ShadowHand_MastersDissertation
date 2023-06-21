@@ -160,7 +160,11 @@ void bio_ik_solver()
         std::vector <float> MapPositionWeights {1.0,1.0,1.0,1.0,1.0,0.2,0.2,0.2,0.2,0.2};
         std::vector <float> MapDirectionWeights{0.1,0.1,0.1,0.1,0.1,0.1};
         float CoupleJointsWeight = 1.0;
-        float CenterJointsWeight = 0.15;
+        float CenterJointsWeight = 0.1;
+        float MinimalDisplacementWeight = 0.15;
+        float WristBendWeight = 0.5;
+        float ArmUpWeight = 0.15;
+
         // BioIK goals
         bio_ik::BioIKKinematicsQueryOptions ik_options;
         ik_options.replace = true;
@@ -199,7 +203,7 @@ void bio_ik_solver()
             ik_options.goals.emplace_back(new bio_ik::DirectionGoal(MapDirectionlinks[i], tf2::Vector3(0,0,1), Mapdirection.normalized(), MapDirectionWeights[i]));
         }
         // Set non-linear Shadow Hand joint coupling constraints
-        std::vector<std::string> ff_coupled_joints, mf_coupled_joints, rf_coupled_joints, lf_coupled_joints, wr_forced_joints;
+        std::vector<std::string> ff_coupled_joints, mf_coupled_joints, rf_coupled_joints, lf_coupled_joints;
         ff_coupled_joints.push_back("rh_FFJ1");
         ff_coupled_joints.push_back("rh_FFJ2");
         mf_coupled_joints.push_back("rh_MFJ1");
@@ -208,7 +212,6 @@ void bio_ik_solver()
         rf_coupled_joints.push_back("rh_RFJ2");
         lf_coupled_joints.push_back("rh_LFJ1");
         lf_coupled_joints.push_back("rh_LFJ2");
-        wr_forced_joints.push_back("rh_WRJ1");
         auto* ff_goal = new bio_ik::JointFunctionGoal(
                             ff_coupled_joints,
                             [=] (std::vector<double>& vv) {
@@ -237,20 +240,36 @@ void bio_ik_solver()
                                 vv[1] = fmin(PI/2, vv[1]);  // max(J2) = 90º       
                             },  CoupleJointsWeight  
                         );
-        auto* wr_goal = new bio_ik::JointFunctionGoal(
-                            wr_forced_joints,
-                            [=] (std::vector<double>& vv) {
-                                vv[0] = -0.523;  // if J2<90º => J1=0
-                                    
-                            },  0.5
-                        );
         ik_options.goals.emplace_back(ff_goal);
         ik_options.goals.emplace_back(mf_goal);
         ik_options.goals.emplace_back(rf_goal);
         ik_options.goals.emplace_back(lf_goal);
-        ik_options.goals.emplace_back(wr_goal);
         // Set Center Joints Goal
         ik_options.goals.emplace_back(new bio_ik::CenterJointsGoal(CenterJointsWeight));
+        // Set Minimal Displacement Goal
+        ik_options.goals.emplace_back(new bio_ik::MinimalDisplacementGoal(MinimalDisplacementWeight));
+        // Set Wrist Bend
+        std::vector<std::string> wr_joints;
+        wr_joints.push_back("rh_WRJ1");
+        auto* wr_goal = new bio_ik::JointFunctionGoal(
+                            wr_joints,
+                            [=] (std::vector<double>& vv) {
+                                vv[0] = -0.523; 
+                            },  WristBendWeight
+                        );
+        ik_options.goals.emplace_back(wr_goal);
+        // Set Arm Up
+        std::vector<std::string> arm_joints;
+        arm_joints.push_back("ra_shoulder_lift_joint");
+        auto* arm_up_goal = new bio_ik::JointFunctionGoal(
+                            arm_joints,
+                            [=] (std::vector<double>& vv) {
+                                vv[0] = -1.57; 
+                            },  ArmUpWeight
+                        );
+        ik_options.goals.emplace_back(arm_up_goal);
+        
+
 
         // Get current robot state
         robot_state::RobotState& current_state = (*planning_scene_pointer).getCurrentStateNonConst(); 
@@ -404,8 +423,8 @@ void handKeypointsCB(const human_robot_map::HandKeypoints::ConstPtr& msg)
 int main(int argc, char **argv)
 {
     // Init ROS node
-    ros::init(argc, argv, "bio_ik_v10");
-    std::cout << "\"bio_ik_v10\" ROS node started!" << std::endl;
+    ros::init(argc, argv, "bio_ik_v12");
+    std::cout << "\"bio_ik_v12\" ROS node started!" << std::endl;
     ros::NodeHandle nh;
 
     ros::AsyncSpinner spinner(5);
@@ -430,7 +449,7 @@ int main(int argc, char **argv)
     planning_scene::PlanningScene planning_scene(robot_model);
 
     // DEBUG
-    if (true){
+    if (false){
         // Print joint names
         std::vector<std::string> joint_names = joint_model_group->getJointModelNames();
         for (const auto& name : joint_names) {
@@ -464,7 +483,7 @@ int main(int argc, char **argv)
     collision_object.primitive_poses.push_back(box_pose);
     collision_object.operation = collision_object.ADD;
     // Add the collision object to the scene
-    planning_scene.applyCollisionObject(collision_object);
+    planning_scene.processCollisionObjectMsg(collision_object);
     
     // Define pointers to access vars in callback
     mgi_pointer = &mgi;
@@ -491,7 +510,7 @@ int main(int argc, char **argv)
     marker_pub_shadow = nh.advertise<visualization_msgs::MarkerArray>("shadow_keypoints_marker", 1);
 
     // Ready 
-    std::cout << "\n\033[1;32m\"bio_ik_v10\" ROS node is ready!\033[0m\n" << std::endl;
+    std::cout << "\n\033[1;32m\"bio_ik_v12\" ROS node is ready!\033[0m\n" << std::endl;
 
     ros::waitForShutdown(); // because of ros::AsyncSpinner
     //ros::spin();
