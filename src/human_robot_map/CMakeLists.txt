@@ -126,6 +126,7 @@ add_dependencies(bio_ik_v6 ${catkin_EXPORTED_TARGETS})
 add_dependencies(bio_ik_v7 ${catkin_EXPORTED_TARGETS})
 add_dependencies(bio_ik_v8 ${catkin_EXPORTED_TARGETS})
 add_dependencies(bio_ik_v10 ${catkin_EXPORTED_TARGETS})
+add_dependencies(bio_ik_v11 ${catkin_EXPORTED_TARGETS})
 add_dependencies(bio_ik_v12 ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
