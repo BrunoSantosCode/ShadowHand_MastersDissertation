@@ -1,6 +1,6 @@
 # Postural and Hand Control of a Robotic System for Detailed Tasks
 
-This repository contains the code developed in the context of my **Master's Dissertation**.
+This repository contains the code developed in **Master's Dissertation** context.
 
 The `src` folder contains packages specifically implemented to run inside the Shadow Dexterous Hand docker container.
 
