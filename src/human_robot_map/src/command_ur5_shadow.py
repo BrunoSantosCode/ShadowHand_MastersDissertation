@@ -89,8 +89,8 @@ if __name__ == "__main__":
     arm_hand_commander = SrHandCommander(name='right_arm_and_hand')
 
     # Set control velocity and acceleration
-    arm_hand_commander.set_max_velocity_scaling_factor(1.0)
-    arm_hand_commander.set_max_acceleration_scaling_factor(1.0)
+    arm_hand_commander.set_max_velocity_scaling_factor(0.5)
+    arm_hand_commander.set_max_acceleration_scaling_factor(0.5)
 
     # Create subscriber
     rospy.Subscriber("ur5_shadow_joints", Float64MultiArray, jointsCB, queue_size=1)
