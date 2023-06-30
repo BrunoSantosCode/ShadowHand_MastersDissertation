@@ -1,21 +1,36 @@
 #!/usr/bin/env python3
 
-#* * * * * * * * * * * ur5_tests.py  * * * * * * * * * * *#
+#* * * * * * * * * * * ur5_tests_v2.py * * * * * * * * * *#
 #*  Performs Wiring Fitting task                         *#
 #*  Grabs the clip from stand                            *#
 #*  Inserts the clip in the respective hole              *#
 #*  Note: clip stand and hole poses in 'world'           *#
+#*  + Adapted to receive clips' positions by ROS msgs    *#
 #* * * * * * * * * * * * * * * * * * * * * * * * * * * * *#
 
 import tf
 import rospy
+from threading import Thread
 from termcolor import colored
 from geometry_msgs.msg import PoseStamped
 from sr_robot_commander.sr_arm_commander import SrArmCommander
 from sr_robot_commander.sr_hand_commander import SrHandCommander
 
+# GLOBAL VARS
 
 # CLIP Poses
+clip_01 = PoseStamped()
+clip_02 = PoseStamped()
+clip_03 = PoseStamped()
+
+# CLIP Insert Poses
+clip_01_goal = PoseStamped()
+clip_02_goal = PoseStamped()
+clip_03_goal = PoseStamped()
+
+# Conditions
+have_clip_poses = False
+have_clip_goal_poses = False
 
 # Grab clip
 clip_stand_01 = PoseStamped()
@@ -78,44 +93,104 @@ clip_ur5_clip.pose.orientation.y = -0.2564281
 clip_ur5_clip.pose.orientation.z = 0.46722685
 clip_ur5_clip.pose.orientation.w = 0.83875252
 
+# # # Referential Frame # # #
+#                           #
+#     _       ^ x           #
+#    | |      |             #
+#    | |      |             #
+#    |_|      .-------> y   #
+#                           #
+# # # # # # # # # # # # # # #
 
-def get_clips_from_stand(stand_pose: PoseStamped):
+def clips_pose_callback(msg):
     """
-        Computes the clips pose in the stand.
-        @param stand_pose - Stand pose of type PoseStamped.
+        Callback function to handle incoming PoseStamped messages of clips' position
     """
-    clip1_pose = PoseStamped()
-    clip1_pose.header.frame_id = 'world'
-    clip1_pose.pose.position.x = stand_pose.pose.position.x + 0.1015
-    clip1_pose.pose.position.y = stand_pose.pose.position.y - 0.048 
-    clip1_pose.pose.position.z = stand_pose.pose.position.z + 0.012
-    clip1_pose.pose.orientation.x = stand_pose.pose.orientation.x
-    clip1_pose.pose.orientation.y = stand_pose.pose.orientation.y
-    clip1_pose.pose.orientation.z = stand_pose.pose.orientation.z
-    clip1_pose.pose.orientation.w = stand_pose.pose.orientation.w
 
-    clip2_pose = PoseStamped()
-    clip2_pose.header.frame_id = 'world'
-    clip2_pose.pose.position.x = stand_pose.pose.position.x + 0.1015
-    clip2_pose.pose.position.y = stand_pose.pose.position.y 
-    clip2_pose.pose.position.z = stand_pose.pose.position.z + 0.012
-    clip2_pose.pose.orientation.x = stand_pose.pose.orientation.x
-    clip2_pose.pose.orientation.y = stand_pose.pose.orientation.y
-    clip2_pose.pose.orientation.z = stand_pose.pose.orientation.z
-    clip2_pose.pose.orientation.w = stand_pose.pose.orientation.w
+    global clip_01, clip_02, clip_03
+    global have_clip_poses
 
-    clip3_pose = PoseStamped()
-    clip3_pose.header.frame_id = 'world'
-    clip3_pose.pose.position.x = stand_pose.pose.position.x + 0.1015
-    clip3_pose.pose.position.y = stand_pose.pose.position.y + 0.048 
-    clip3_pose.pose.position.z = stand_pose.pose.position.z + 0.012
-    clip3_pose.pose.orientation.x = stand_pose.pose.orientation.x
-    clip3_pose.pose.orientation.y = stand_pose.pose.orientation.y
-    clip3_pose.pose.orientation.z = stand_pose.pose.orientation.z
-    clip3_pose.pose.orientation.w = stand_pose.pose.orientation.w
+    if have_clip_poses == True:
+        return
 
-    return clip1_pose, clip2_pose, clip3_pose
+    # Clip1
+    clip_01.header.frame_id = 'world'
+    clip_01.pose.position.x = msg.pose.position.x + 0.1015
+    clip_01.pose.position.y = msg.pose.position.y - 0.048 
+    clip_01.pose.position.z = msg.pose.position.z + 0.012
+    clip_01.pose.orientation.x = msg.pose.orientation.x
+    clip_01.pose.orientation.y = msg.pose.orientation.y
+    clip_01.pose.orientation.z = msg.pose.orientation.z
+    clip_01.pose.orientation.w = msg.pose.orientation.w
+
+    # Clip1
+    clip_02.header.frame_id = 'world'
+    clip_02.pose.position.x = msg.pose.position.x + 0.1015
+    clip_02.pose.position.y = msg.pose.position.y 
+    clip_02.pose.position.z = msg.pose.position.z + 0.012
+    clip_02.pose.orientation.x = msg.pose.orientation.x
+    clip_02.pose.orientation.y = msg.pose.orientation.y
+    clip_02.pose.orientation.z = msg.pose.orientation.z
+    clip_02.pose.orientation.w = msg.pose.orientation.w
+
+    # Clip3
+    clip_03.header.frame_id = 'world'
+    clip_03.pose.position.x = msg.pose.position.x + 0.1015
+    clip_03.pose.position.y = msg.pose.position.y + 0.048 
+    clip_03.pose.position.z = msg.pose.position.z + 0.012
+    clip_03.pose.orientation.x = msg.pose.orientation.x
+    clip_03.pose.orientation.y = msg.pose.orientation.y
+    clip_03.pose.orientation.z = msg.pose.orientation.z
+    clip_03.pose.orientation.w = msg.pose.orientation.w
     
+    print('\n' + colored('Clip poses received!', 'green') + '\n') 
+    have_clip_poses = True
+
+def clips_goal_pose_callback(msg):
+    """
+        Callback function to handle incoming PoseStamped messages of clips' position
+    """
+
+    global clip_01, clip_02, clip_03
+    global have_clip_goal_poses
+
+    if have_clip_goal_poses == True:
+        return
+
+    # ClipGoal1
+    clip_01_goal.header.frame_id = 'world'
+    clip_01_goal.pose.position.x = msg.pose.position.x
+    clip_01_goal.pose.position.y = msg.pose.position.y
+    clip_01_goal.pose.position.z = msg.pose.position.z
+    clip_01_goal.pose.orientation.x = msg.pose.orientation.x
+    clip_01_goal.pose.orientation.y = msg.pose.orientation.y
+    clip_01_goal.pose.orientation.z = msg.pose.orientation.z
+    clip_01_goal.pose.orientation.w = msg.pose.orientation.w
+
+    # ClipGoal1
+    clip_02_goal.header.frame_id = 'world'
+    clip_02_goal.pose.position.x = msg.pose.position.x
+    clip_02_goal.pose.position.y = msg.pose.position.y 
+    clip_02_goal.pose.position.z = msg.pose.position.z
+    clip_02_goal.pose.orientation.x = msg.pose.orientation.x
+    clip_02_goal.pose.orientation.y = msg.pose.orientation.y
+    clip_02_goal.pose.orientation.z = msg.pose.orientation.z
+    clip_02_goal.pose.orientation.w = msg.pose.orientation.w
+
+    # ClipGoal3
+    clip_03_goal.header.frame_id = 'world'
+    clip_03_goal.pose.position.x = msg.pose.position.x
+    clip_03_goal.pose.position.y = msg.pose.position.y
+    clip_03_goal.pose.position.z = msg.pose.position.z
+    clip_03_goal.pose.orientation.x = msg.pose.orientation.x
+    clip_03_goal.pose.orientation.y = msg.pose.orientation.y
+    clip_03_goal.pose.orientation.z = msg.pose.orientation.z
+    clip_03_goal.pose.orientation.w = msg.pose.orientation.w
+
+    print('\n' + colored('Clip goal poses received!', 'green') + '\n') 
+    have_clip_goal_poses = True
+    
+
 
 def get_start_pose(final_pose: PoseStamped, dist, mode: str):
     """
@@ -174,6 +249,7 @@ def get_start_pose(final_pose: PoseStamped, dist, mode: str):
     return new_pose
 
 
+
 def set_hand_pose(pose: str):
     """
         Sets a pre-defined pose for Shadow Hand
@@ -185,6 +261,7 @@ def set_hand_pose(pose: str):
         hand_commander.move_to_joint_value_target_unsafe(joint_states=start_pinch_pose, time=1.0, wait=True, angle_degrees=False)
     else:
         print('\n' + colored('ERROR: "' + pose + '" hand pose is not defined!', 'red') + '\n') 
+
 
 
 def move_arm_to(final_pose: PoseStamped, dist, mode: str):
@@ -213,7 +290,88 @@ def move_arm_to(final_pose: PoseStamped, dist, mode: str):
         arm_commander.execute()
     elif method == 4:
         arm_commander.move_to_pose_target(arm_go_to)
+
+
+def clipping_iteration(clip_pose: PoseStamped, clip_goal_pose: PoseStamped):
+    """
+        Executes one iteration of the clipping task
+        @param clip_pose - Clip pose of type PoseStamped.
+        @param clip_goal_pose - Clip goal a given pose of type PoseStamped.
+    """
+    #1 GET THE CLIP
+
+    move_arm_to(clip_pose, 0.05, 'pick')
+    move_arm_to(clip_pose, 0.05, 'pick')
+    set_hand_pose('release')
+    print(colored('Preparing to grab the clip', 'green'))
+    if rospy.is_shutdown(): return
+    rospy.sleep(1.0)
     
+    move_arm_to(clip_pose, 0.00, 'pick')
+    move_arm_to(clip_pose, 0.00, 'pick')
+    set_hand_pose('grab')
+    print(colored('Clip grabed', 'green'))
+    if rospy.is_shutdown(): return
+    rospy.sleep(1.0)
+
+    move_arm_to(clip_pose, 0.05, 'pick')
+    move_arm_to(clip_pose, 0.05, 'pick')
+    print(colored('Moved back', 'green'))
+    if rospy.is_shutdown(): return
+    rospy.sleep(1.0)
+    
+    #2 CLIPPING TASK
+
+    move_arm_to(clip_goal_pose, 0.05, 'clip')
+    move_arm_to(clip_goal_pose, 0.05, 'clip')
+    print(colored('Preparing to clip', 'green'))
+    if rospy.is_shutdown(): return
+    rospy.sleep(1.0)
+    
+
+    move_arm_to(clip_goal_pose, 0.00, 'clip')
+    move_arm_to(clip_goal_pose, 0.00, 'clip')
+    print(colored('Clip in place', 'green'))
+    if rospy.is_shutdown(): return
+    rospy.sleep(1.0)
+
+    set_hand_pose('release')
+    move_arm_to(clip_goal_pose, 0.05, 'clip')
+    move_arm_to(clip_goal_pose, 0.05, 'clip')
+    print(colored('Iteration completed!', 'green'))
+    if rospy.is_shutdown(): return
+    rospy.sleep(1.0)
+
+
+
+def main_task():
+    """
+        Clipping task execution
+    """
+    while not rospy.is_shutdown():
+
+        if (have_clip_poses==False) or (have_clip_goal_poses==False) :
+            rospy.sleep(0.5)
+            continue
+
+        print('Starting clipping iteration 1')
+        clipping_iteration(clip_01, clip_01_goal)
+        print('End of clipping iteration 1')
+        if rospy.is_shutdown(): return
+
+        print('Starting clipping iteration 2')
+        clipping_iteration(clip_02, clip_02_goal)
+        print('End of clipping iteration 2')
+        if rospy.is_shutdown(): return
+
+        print('Starting clipping iteration 3')
+        clipping_iteration(clip_03, clip_03_goal)
+        print('End of clipping iteration 3')
+        if rospy.is_shutdown(): return
+
+        exit(1)
+
+
 
 if __name__ == "__main__":
     global tf_listener, tf_broadcaster
@@ -231,55 +389,22 @@ if __name__ == "__main__":
     hand_commander = SrHandCommander(name='right_hand')
 
     # Set control velocity and acceleration
-    hand_commander.set_max_velocity_scaling_factor(0.1)
-    hand_commander.set_max_acceleration_scaling_factor(0.1)
-    arm_commander.set_max_velocity_scaling_factor(0.05)
-    arm_commander.set_max_acceleration_scaling_factor(0.05)
+    speed = 1.0
+    hand_commander.set_max_velocity_scaling_factor(speed)
+    hand_commander.set_max_acceleration_scaling_factor(speed)
+    arm_commander.set_max_velocity_scaling_factor(speed)
+    arm_commander.set_max_acceleration_scaling_factor(speed)
+
+    # Main Thread
+    thread1 = Thread(target=main_task)
+    thread1.start()
 
     print('\n' + colored('"ur5_tests" ROS node is ready!', 'green') + '\n') 
 
-    while not rospy.is_shutdown():
+    # ROS Subscribers
+    rospy.Subscriber('clips_pose_topic', PoseStamped, clips_pose_callback)
+    rospy.Subscriber('clips_goal_pose_topic', PoseStamped, clips_goal_pose_callback)
 
-        #1 GET THE CLIP
+    print('Waiting for clip positions...')
 
-        move_arm_to(clip_stand_01, 0.10, 'pick')
-        move_arm_to(clip_stand_01, 0.10, 'pick')
-        set_hand_pose('release')
-        print(colored('Preparing to grab the clip', 'green'))
-        if rospy.is_shutdown(): break
-        rospy.sleep(1.0)
-        
-        move_arm_to(clip_stand_01, 0.00, 'pick')
-        move_arm_to(clip_stand_01, 0.00, 'pick')
-        set_hand_pose('grab')
-        print(colored('Clip grabed', 'green'))
-        if rospy.is_shutdown(): break
-        rospy.sleep(1.0)
-
-        move_arm_to(clip_stand_01, 0.10, 'pick')
-        move_arm_to(clip_stand_01, 0.10, 'pick')
-        print(colored('Moved back', 'green'))
-        if rospy.is_shutdown(): break
-        rospy.sleep(1.0)
-        
-        #2 CLIPPING TASK
-
-        move_arm_to(clip_stand_01, 0.10, 'clip')
-        move_arm_to(clip_stand_01, 0.10, 'clip')
-        print(colored('Preparing to clip', 'green'))
-        if rospy.is_shutdown(): break
-        rospy.sleep(1.0)
-        
-
-        move_arm_to(clip_stand_01, 0.00, 'clip')
-        move_arm_to(clip_stand_01, 0.00, 'clip')
-        print(colored('Clip in place', 'green'))
-        if rospy.is_shutdown(): break
-        rospy.sleep(1.0)
-
-        set_hand_pose('release')
-        move_arm_to(clip_hole_01, 0.10, 'clip')
-        move_arm_to(clip_hole_01, 0.10, 'clip')
-        print(colored('Iteration completed!', 'green'))
-        if rospy.is_shutdown(): break
-        rospy.sleep(1.0)
+    rospy.spin()
