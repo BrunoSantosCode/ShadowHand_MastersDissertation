@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 
-#* * * * * * * * * * * ur5_tests_v2.py * * * * * * * * * *#
-#*  Performs Wiring Fitting task                         *#
-#*  Grabs the clip from stand                            *#
-#*  Inserts the clip in the respective hole              *#
-#*  Note: clip stand and hole poses in 'world'           *#
-#*  + Adapted to receive clips' positions by ROS msgs    *#
-#* * * * * * * * * * * * * * * * * * * * * * * * * * * * *#
+#* * * * * * * * * * * ur5_tests_v2.py * * * * * * * * * * * *#
+#*  Performs Wiring Fitting task                             *#
+#*  Grabs the clip from stand                                *#
+#*  Inserts the clip in the respective hole                  *#
+#*  Note: clip stand and hole poses in 'world'               *#
+#*  + Adapted to receive clips' positions by ROS msgs        *#
+#*  + Receives clip poses from 'clips_pose_topic'            *#
+#*  + Receives clip goal poses from 'clips_goal_pose_topic'  *#
+#* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *#
 
 import tf
 import rospy
