@@ -88,7 +88,7 @@ void bio_ik_solver()
         prev_kp = mean_kp;
 
         // Get target joints position/orientation
-        std::vector<Eigen::Vector3d> linkPos(10);
+        std::vector<Eigen::Vector3d> linkPos(11);
         std::vector<Eigen::Vector3d> linkDir(6);
         mutex_kp.lock();
             linkPos[0] = mean_kp[4];   // th_tip
@@ -101,6 +101,7 @@ void bio_ik_solver()
             linkPos[7] = mean_kp[10];  // mf_middle
             linkPos[8] = mean_kp[14];  // rf_middle
             linkPos[9] = mean_kp[18];  // lf_middle
+            linkPos[10] = mean_kp[0];  // wrist
 
             linkDir[0] = mean_kp[6]  - mean_kp[5];   // ff_proximal
             linkDir[1] = mean_kp[10] - mean_kp[9];   // mf_proximal
@@ -144,7 +145,8 @@ void bio_ik_solver()
             "rh_ffmiddle",
             "rh_mfmiddle",
             "rh_rfmiddle",
-            "rh_lfmiddle"
+            "rh_lfmiddle",
+            "rh_wrist"
         };
         std::vector<std::string> MapDirectionlinks {
             "rh_ffproximal",
@@ -157,7 +159,7 @@ void bio_ik_solver()
 
 
         // BioIK condition weights
-        std::vector <float> MapPositionWeights {1.0,1.0,1.0,1.0,1.0,0.2,0.2,0.2,0.2,0.2};
+        std::vector <float> MapPositionWeights {1.0,1.0,1.0,1.0,1.0,0.2,0.2,0.2,0.2,0.2,0.25};
         std::vector <float> MapDirectionWeights{0.1,0.1,0.1,0.1,0.1,0.1};
         float CoupleJointsWeight = 1.0;
         float CenterJointsWeight = 0.1;
