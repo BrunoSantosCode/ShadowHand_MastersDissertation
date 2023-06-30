@@ -5,9 +5,7 @@
 #*  Grabs the clip from stand                                *#
 #*  Inserts the clip in the respective hole                  *#
 #*  Note: clip stand and hole poses in 'world'               *#
-#*  + Adapted to receive clips' positions by ROS msgs        *#
-#*  + Receives clip poses from 'clips_pose_topic'            *#
-#*  + Receives clip goal poses from 'clips_goal_pose_topic'  *#
+#*  + Adapted to receive clips' positions by ROS TF          *#
 #* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *#
 
 import tf
@@ -29,10 +27,6 @@ clip_03 = PoseStamped()
 clip_01_goal = PoseStamped()
 clip_02_goal = PoseStamped()
 clip_03_goal = PoseStamped()
-
-# Conditions
-have_clip_poses = False
-have_clip_goal_poses = False
 
 # Grab clip
 clip_stand_01 = PoseStamped()
@@ -104,93 +98,80 @@ clip_ur5_clip.pose.orientation.w = 0.83875252
 #                           #
 # # # # # # # # # # # # # # #
 
-def clips_pose_callback(msg):
+def wait_for_clips_pose():
     """
         Callback function to handle incoming PoseStamped messages of clips' position
     """
+    global tf_listener
+
+    tf_listener.waitForTransform('world', 'clip_stand_frame', rospy.Time(0), rospy.Duration(60*60))
 
     global clip_01, clip_02, clip_03
-    global have_clip_poses
-
-    if have_clip_poses == True:
-        return
 
     # Clip1
-    clip_01.header.frame_id = 'world'
-    clip_01.pose.position.x = msg.pose.position.x + 0.1015
-    clip_01.pose.position.y = msg.pose.position.y - 0.048 
-    clip_01.pose.position.z = msg.pose.position.z + 0.012
-    clip_01.pose.orientation.x = msg.pose.orientation.x
-    clip_01.pose.orientation.y = msg.pose.orientation.y
-    clip_01.pose.orientation.z = msg.pose.orientation.z
-    clip_01.pose.orientation.w = msg.pose.orientation.w
+    aux = PoseStamped()
+    aux.header.frame_id = 'clip_stand_frame'
+    aux.pose.position.x = 0.1015
+    aux.pose.position.y = 0.048 
+    aux.pose.position.z = 0.012
+    aux.pose.orientation.w = 1.0
+    clip_01 = tf_listener.transformPose('world', aux)
 
     # Clip1
-    clip_02.header.frame_id = 'world'
-    clip_02.pose.position.x = msg.pose.position.x + 0.1015
-    clip_02.pose.position.y = msg.pose.position.y 
-    clip_02.pose.position.z = msg.pose.position.z + 0.012
-    clip_02.pose.orientation.x = msg.pose.orientation.x
-    clip_02.pose.orientation.y = msg.pose.orientation.y
-    clip_02.pose.orientation.z = msg.pose.orientation.z
-    clip_02.pose.orientation.w = msg.pose.orientation.w
+    aux.header.frame_id = 'clip_stand_frame'
+    aux.pose.position.x = 0.1015
+    aux.pose.position.y = 0.0
+    aux.pose.position.z = 0.012
+    aux.pose.orientation.w = 1.0
+    clip_02 = tf_listener.transformPose('world', aux)
 
     # Clip3
-    clip_03.header.frame_id = 'world'
-    clip_03.pose.position.x = msg.pose.position.x + 0.1015
-    clip_03.pose.position.y = msg.pose.position.y + 0.048 
-    clip_03.pose.position.z = msg.pose.position.z + 0.012
-    clip_03.pose.orientation.x = msg.pose.orientation.x
-    clip_03.pose.orientation.y = msg.pose.orientation.y
-    clip_03.pose.orientation.z = msg.pose.orientation.z
-    clip_03.pose.orientation.w = msg.pose.orientation.w
+    aux.header.frame_id = 'clip_stand_frame'
+    aux.pose.position.x = 0.1015
+    aux.pose.position.y = 0.048 
+    aux.pose.position.z = 0.012
+    aux.pose.orientation.w = 1.0
+    clip_03 = tf_listener.transformPose('world', aux)
     
     print('\n' + colored('Clip poses received!', 'green') + '\n') 
-    have_clip_poses = True
 
-def clips_goal_pose_callback(msg):
+
+
+def wait_for_clips_goal_pose():
     """
         Callback function to handle incoming PoseStamped messages of clips' position
     """
+    global tf_listener
 
-    global clip_01, clip_02, clip_03
-    global have_clip_goal_poses
+    tf_listener.waitForTransform('world', 'door_frame', rospy.Time(0), rospy.Duration(60*60))
 
-    if have_clip_goal_poses == True:
-        return
+    global clip_01_goal, clip_02_goal, clip_03_goal
+ # Clip1
+    aux = PoseStamped()
+    aux.header.frame_id = 'door_frame'
+    aux.pose.position.x = 0.0
+    aux.pose.position.y = 0.0 
+    aux.pose.position.z = 0.0
+    aux.pose.orientation.w = 1.0
+    clip_01_goal = tf_listener.transformPose('world', aux)
 
-    # ClipGoal1
-    clip_01_goal.header.frame_id = 'world'
-    clip_01_goal.pose.position.x = msg.pose.position.x
-    clip_01_goal.pose.position.y = msg.pose.position.y
-    clip_01_goal.pose.position.z = msg.pose.position.z
-    clip_01_goal.pose.orientation.x = msg.pose.orientation.x
-    clip_01_goal.pose.orientation.y = msg.pose.orientation.y
-    clip_01_goal.pose.orientation.z = msg.pose.orientation.z
-    clip_01_goal.pose.orientation.w = msg.pose.orientation.w
+    # Clip1
+    aux.header.frame_id = 'door_frame'
+    aux.pose.position.x = 0.0
+    aux.pose.position.y = 0.0
+    aux.pose.position.z = 0.0
+    aux.pose.orientation.w = 1.0
+    clip_02_goal = tf_listener.transformPose('world', aux)
 
-    # ClipGoal1
-    clip_02_goal.header.frame_id = 'world'
-    clip_02_goal.pose.position.x = msg.pose.position.x
-    clip_02_goal.pose.position.y = msg.pose.position.y 
-    clip_02_goal.pose.position.z = msg.pose.position.z
-    clip_02_goal.pose.orientation.x = msg.pose.orientation.x
-    clip_02_goal.pose.orientation.y = msg.pose.orientation.y
-    clip_02_goal.pose.orientation.z = msg.pose.orientation.z
-    clip_02_goal.pose.orientation.w = msg.pose.orientation.w
-
-    # ClipGoal3
-    clip_03_goal.header.frame_id = 'world'
-    clip_03_goal.pose.position.x = msg.pose.position.x
-    clip_03_goal.pose.position.y = msg.pose.position.y
-    clip_03_goal.pose.position.z = msg.pose.position.z
-    clip_03_goal.pose.orientation.x = msg.pose.orientation.x
-    clip_03_goal.pose.orientation.y = msg.pose.orientation.y
-    clip_03_goal.pose.orientation.z = msg.pose.orientation.z
-    clip_03_goal.pose.orientation.w = msg.pose.orientation.w
+    # Clip3
+    aux.header.frame_id = 'door_frame'
+    aux.pose.position.x = 0.0
+    aux.pose.position.y = 0.0
+    aux.pose.position.z = 0.0
+    aux.pose.orientation.w = 1.0
+    clip_03_goal = tf_listener.transformPose('world', aux)
 
     print('\n' + colored('Clip goal poses received!', 'green') + '\n') 
-    have_clip_goal_poses = True
     
 
 
@@ -350,28 +331,22 @@ def main_task():
     """
         Clipping task execution
     """
-    while not rospy.is_shutdown():
+    print('Starting clipping iteration 1')
+    clipping_iteration(clip_01, clip_01_goal)
+    print('End of clipping iteration 1')
+    if rospy.is_shutdown(): return
 
-        if (have_clip_poses==False) or (have_clip_goal_poses==False) :
-            rospy.sleep(0.5)
-            continue
+    print('Starting clipping iteration 2')
+    clipping_iteration(clip_02, clip_02_goal)
+    print('End of clipping iteration 2')
+    if rospy.is_shutdown(): return
 
-        print('Starting clipping iteration 1')
-        clipping_iteration(clip_01, clip_01_goal)
-        print('End of clipping iteration 1')
-        if rospy.is_shutdown(): return
+    print('Starting clipping iteration 3')
+    clipping_iteration(clip_03, clip_03_goal)
+    print('End of clipping iteration 3')
+    if rospy.is_shutdown(): return
 
-        print('Starting clipping iteration 2')
-        clipping_iteration(clip_02, clip_02_goal)
-        print('End of clipping iteration 2')
-        if rospy.is_shutdown(): return
-
-        print('Starting clipping iteration 3')
-        clipping_iteration(clip_03, clip_03_goal)
-        print('End of clipping iteration 3')
-        if rospy.is_shutdown(): return
-
-        exit(1)
+    exit(1)
 
 
 
@@ -397,16 +372,17 @@ if __name__ == "__main__":
     arm_commander.set_max_velocity_scaling_factor(speed)
     arm_commander.set_max_acceleration_scaling_factor(speed)
 
+    print('\n' + colored('"ur5_tests" ROS node is ready!', 'green') + '\n') 
+    
+    print('Waiting for clip positions...')
+    
+    wait_for_clips_pose()
+    wait_for_clips_goal_pose()
+
+    print('DONE')
+
     # Main Thread
     thread1 = Thread(target=main_task)
     thread1.start()
-
-    print('\n' + colored('"ur5_tests" ROS node is ready!', 'green') + '\n') 
-
-    # ROS Subscribers
-    rospy.Subscriber('clips_pose_topic', PoseStamped, clips_pose_callback)
-    rospy.Subscriber('clips_goal_pose_topic', PoseStamped, clips_goal_pose_callback)
-
-    print('Waiting for clip positions...')
 
     rospy.spin()
