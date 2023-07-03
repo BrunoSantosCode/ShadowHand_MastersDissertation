@@ -1,0 +1,3 @@
+<launch>
+    <node name="clipping_task" pkg="shadow_pinch_teleop" type="clipping_task.py" output="screen" />
+</launch>
