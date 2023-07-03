@@ -355,7 +355,7 @@ if __name__ == "__main__":
     global arm_commander
 
     # Init ROS
-    rospy.init_node('ur5_tests')
+    rospy.init_node('ur5_tests_v2')
 
     # Init TF Global Vars
     tf_listener = tf.TransformListener()
@@ -372,7 +372,7 @@ if __name__ == "__main__":
     arm_commander.set_max_velocity_scaling_factor(speed)
     arm_commander.set_max_acceleration_scaling_factor(speed)
 
-    print('\n' + colored('"ur5_tests" ROS node is ready!', 'green') + '\n') 
+    print('\n' + colored('"ur5_tests_v2" ROS node is ready!', 'green') + '\n') 
     
     print('Waiting for clip positions...')
     
