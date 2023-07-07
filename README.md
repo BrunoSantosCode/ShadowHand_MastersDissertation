@@ -18,19 +18,19 @@ Packages description:
 
 ## How to run
 
-  1st - Run OpenPose
+  - 1st - Run OpenPose
 
-  2nd - Run Shadow Hand MuJoCo simulator
+  - 2nd - Run Shadow Hand MuJoCo simulator
   ```bash
     roslaunch sr_robot_launch srhand_mujoco.launch
   ```
   
-  3rd - Run OpenPose ROS msg converter
+  - 3rd - Run OpenPose ROS msg converter
   ```bash
     roslaunch openpose_mujoco openpose2dexpilot.launch
   ```
   
-  4th - Run Direct Joints Mapping
+  - 4th - Run Direct Joints Mapping
   ```bash
     roslaunch openpose_mujoco hand_commander_Joints_vF.launch
   ```
