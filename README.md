@@ -94,6 +94,7 @@ Packages description:
   roslaunch sr_robot_launch sr_ur5.....launch
 ```
 
+**2nd** - Run Clipping Task Script
 ```bash
   roslaunch shadow_pinch_teleop clipping_task.launch
 ```
