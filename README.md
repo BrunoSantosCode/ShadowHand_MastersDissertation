@@ -23,9 +23,9 @@ Packages description:
 1. Run OpenPose
 
 2. Run Shadow Hand MuJoCo simulator
-```bash
-  roslaunch sr_robot_launch srhand_mujoco.launch
-```
+  ```bash
+    roslaunch sr_robot_launch srhand_mujoco.launch
+  ```
 
 3. Run OpenPose ROS msg converter
 ```bash
