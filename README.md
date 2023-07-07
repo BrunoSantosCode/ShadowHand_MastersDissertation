@@ -10,6 +10,12 @@ Packages description:
   - `teach_net_teleoperation` and `shadow_teleop` - includes the code from the end-to-end algorithm **TeachNET** (adapted from [(TeachNet_Teleoperation repository)]([https://github.com/jorgef1299/SERP](https://github.com/TAMS-Group/TeachNet_Teleoperation)));
   - `shadow_pinch_teleop` - includes the code for the **Wiring Fitting** task;
 
+# How to run
+
+## Direct Joints Mapping
+
+
+
 ![GitHub](https://github.com/BrunoSantosCode/ShadowHand_MastersDissertation/assets/78873048/2d035f65-0977-4cc2-a0be-0c87cf1df7f3)
 
 Bruno Martins Santos, 2023
