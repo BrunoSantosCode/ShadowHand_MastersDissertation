@@ -18,6 +18,8 @@ Packages description:
 
 ## How to run
 
+### Direct Joints Mapping
+
 **1st** - Run OpenPose
 
 **2nd** - Run Shadow Hand MuJoCo simulator
@@ -34,6 +36,81 @@ Packages description:
 ```bash
   roslaunch openpose_mujoco hand_commander_Joints_vF.launch
 ```
+
+### DexPilot
+
+**1st** - Run OpenPose
+
+**2nd** - Run Shadow Hand MuJoCo simulator
+```bash
+  roslaunch sr_robot_launch srhand_mujoco.launch
+```
+
+**3rd** - Run OpenPose ROS msg converter
+```bash
+  roslaunch openpose_mujoco openpose2dexpilot.launch
+```
+
+**4th** - Run DexPilot
+```bash
+  roslaunch openpose_mujoco hand_commander_DexPilot_v7.launch
+```
+
+### BioIK
+
+**1st** - Run OpenPose
+
+**2nd** - Run Shadow Hand MuJoCo simulator
+```bash
+  roslaunch sr_robot_launch srhand_mujoco.launch
+```
+
+**3rd** - Run OpenPose ROS msg converter
+```bash
+  roslaunch human_robot_map openpose2dexpilot.launch
+```
+
+**4th** - Run BioIK
+```bash
+  roslaunch human_robot_map bio_ik_v8.launch
+```
+
+### TeachNET
+
+**1st** - Run Kinect ROS Wrapper
+```bash
+  roslaunch kinect2_bridge kinect2_bridge.launch
+```
+
+**2nd** - Run TeachNET
+```bash
+  roslaunch teach_net_teleoperation teachnet_launch_unsafe.launch
+```
+
+### Wiriing Fitting Task
+
+**1st** - Run UR5 + Shadow Hand MuJoCo simulator
+```bash
+  roslaunch sr_robot_launch sr_ur5.....launch
+```
+
+```bash
+  roslaunch shadow_pinch_teleop clipping_task.launch
+```
+
+### Automotive Painting Quality Control Task
+
+**1st** - Run UR5 + Shadow Hand MuJoCo simulator
+```bash
+  roslaunch sr_robot_launch sr_ur5.....launch
+```
+
+**2nd** - Run BioIK
+```bash
+  roslaunch human_robot_map bio_ik_v12.launch
+```
+
+**3rd** - Publish hand keypoints positions to replicate
 
 
 ![GitHub](https://github.com/BrunoSantosCode/ShadowHand_MastersDissertation/assets/78873048/2d035f65-0977-4cc2-a0be-0c87cf1df7f3)
