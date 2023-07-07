@@ -18,22 +18,22 @@ Packages description:
 
 ## How to run
 
-  - 1st - Run OpenPose
+**1st** - Run OpenPose
 
-  - 2nd - Run Shadow Hand MuJoCo simulator
-  ```bash
-    roslaunch sr_robot_launch srhand_mujoco.launch
-  ```
-  
-  - 3rd - Run OpenPose ROS msg converter
-  ```bash
-    roslaunch openpose_mujoco openpose2dexpilot.launch
-  ```
-  
-  - 4th - Run Direct Joints Mapping
-  ```bash
-    roslaunch openpose_mujoco hand_commander_Joints_vF.launch
-  ```
+**2nd** - Run Shadow Hand MuJoCo simulator
+```bash
+  roslaunch sr_robot_launch srhand_mujoco.launch
+```
+
+**3rd** - Run OpenPose ROS msg converter
+```bash
+  roslaunch openpose_mujoco openpose2dexpilot.launch
+```
+
+**4th** - Run Direct Joints Mapping
+```bash
+  roslaunch openpose_mujoco hand_commander_Joints_vF.launch
+```
 
 
 ![GitHub](https://github.com/BrunoSantosCode/ShadowHand_MastersDissertation/assets/78873048/2d035f65-0977-4cc2-a0be-0c87cf1df7f3)
