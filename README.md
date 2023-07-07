@@ -87,11 +87,11 @@ Packages description:
       roslaunch teach_net_teleoperation teachnet_launch_unsafe.launch
     ```
 
-### Wiriing Fitting Task
+### Wiring Fitting Task
 
 1. Run UR5 + Shadow Hand MuJoCo simulator
     ```bash
-      roslaunch sr_robot_launch sr_ur5.....launch
+      roslaunch sr_robot_launch sr_ur5_arm_hand_mujoco.launch
     ```
 
 2. Run Clipping Task Script
@@ -103,7 +103,7 @@ Packages description:
 
 1. Run UR5 + Shadow Hand MuJoCo simulator
     ```bash
-      roslaunch sr_robot_launch sr_ur5.....launch
+      roslaunch sr_robot_launch sr_ur5_arm_hand_mujoco.launch
     ```
 
 2. Run BioIK
