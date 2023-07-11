@@ -20,59 +20,81 @@ from sr_robot_commander.sr_hand_commander import SrHandCommander
 
 # CLIP Poses
 clip_01 = PoseStamped()
-clip_01.pose.position.x = 0.8090350904948178
-clip_01.pose.position.y = -0.05905678621987004
-clip_01.pose.position.z = 0.000595339747434958
-clip_01.pose.orientation.x = -0.7419143595894909
-clip_01.pose.orientation.y = -0.6699794054594519
-clip_01.pose.orientation.z = 0.025714768389053667
-clip_01.pose.orientation.w = -0.005424940719662695
+clip_01.pose.position.x    = -0.7013687547321541
+clip_01.pose.position.y    = -0.3371640505215104
+clip_01.pose.position.z    = 0.02042965761222054
+clip_01.pose.orientation.x = 0.7507158220918237
+clip_01.pose.orientation.y = -0.6576619545326087
+clip_01.pose.orientation.z = -0.05382636202172446
+clip_01.pose.orientation.w = -0.03176839267027669
 
 clip_02 = PoseStamped()
-clip_02.pose.position.x = 0.8090350904948178
-clip_02.pose.position.y = -0.05905678621987004
-clip_02.pose.position.z = 0.000595339747434958
-clip_02.pose.orientation.x = -0.7419143595894909
-clip_02.pose.orientation.y = -0.6699794054594519
-clip_02.pose.orientation.z = 0.025714768389053667
-clip_02.pose.orientation.w = -0.005424940719662695
+clip_02.pose.position.x    = -0.7496841794833724
+clip_02.pose.position.y    = -0.3395367195654194
+clip_02.pose.position.z    = 0.02139551641493522
+clip_02.pose.orientation.x = 0.7490428991145404
+clip_02.pose.orientation.y = -0.6593970032455495
+clip_02.pose.orientation.z = -0.05832658151396662
+clip_02.pose.orientation.w = -0.02698772472379324
 
 clip_03 = PoseStamped()
-clip_03.pose.position.x = 0.8090350904948178
-clip_03.pose.position.y = -0.05905678621987004
-clip_03.pose.position.z = 0.000595339747434958
-clip_03.pose.orientation.x = -0.7419143595894909
-clip_03.pose.orientation.y = -0.6699794054594519
-clip_03.pose.orientation.z = 0.025714768389053667
-clip_03.pose.orientation.w = -0.005424940719662695
+clip_03.pose.position.x    = -0.7987361575984427
+clip_03.pose.position.y    = -0.3400300400217644
+clip_03.pose.position.z    = 0.02044907473862276
+clip_03.pose.orientation.x = 0.7488557357025425
+clip_03.pose.orientation.y = -0.659485180086012
+clip_03.pose.orientation.z = -0.061163718573439683
+clip_03.pose.orientation.w = -0.023524112790780833
+
+# -0.29993912559857633
+# -0.898802335007453
+# 0.3870953099834453
+# -0.5658392743889554
+# 0.5278363374026717
+# -0.4348244104229976
+# -0.4605892406218414
+
+
+# FFTip Position:
+# [-0.3207815504742234, -0.8704614547308139, 0.31694445679734146]
+# FFTip Orientation:
+# [-0.5548091835541835, 0.5192386398139488, -0.46809010836500664, -0.451076108011649]
+
+
+# FFTip Position:
+# [-0.39677781164258463, -0.9033432922982123, 0.3886164945416355]
+# FFTip Orientation:
+# [-0.3994133426386702, 0.6620538480722706, -0.5441335869874421, -0.3256874628951527]
+
+
 
 # CLIP Insert Poses
 clip_01_goal = PoseStamped()
-clip_01_goal.pose.position.x = 0.8090350904948178
-clip_01_goal.pose.position.y = -0.05905678621987004
-clip_01_goal.pose.position.z = 0.000595339747434958
-clip_01_goal.pose.orientation.x = -0.7419143595894909
-clip_01_goal.pose.orientation.y = -0.6699794054594519
-clip_01_goal.pose.orientation.z = 0.025714768389053667
-clip_01_goal.pose.orientation.w = -0.005424940719662695
+clip_01_goal.pose.position.x    = -0.2959381075712935
+clip_01_goal.pose.position.y    = -0.8901476353018414
+clip_01_goal.pose.position.z    = 0.38427741037989814
+clip_01_goal.pose.orientation.x = -0.5658392743889554
+clip_01_goal.pose.orientation.y = 0.5278363374026717
+clip_01_goal.pose.orientation.z = -0.4348244104229976
+clip_01_goal.pose.orientation.w = -0.4605892406218414
 
 clip_02_goal = PoseStamped()
-clip_02_goal.pose.position.x = 0.8090350904948178
-clip_02_goal.pose.position.y = -0.05905678621987004
-clip_02_goal.pose.position.z = 0.000595339747434958
-clip_02_goal.pose.orientation.x = -0.7419143595894909
-clip_02_goal.pose.orientation.y = -0.6699794054594519
-clip_02_goal.pose.orientation.z = 0.025714768389053667
-clip_02_goal.pose.orientation.w = -0.005424940719662695
+clip_02_goal.pose.position.x    = -0.31907116149773967
+clip_02_goal.pose.position.y    = -0.8604955291653413
+clip_02_goal.pose.position.z    = 0.3160874128504203
+clip_02_goal.pose.orientation.x = 0.5605151502265101
+clip_02_goal.pose.orientation.y = -0.5523179936761521
+clip_02_goal.pose.orientation.z = 0.4580689778762541
+clip_02_goal.pose.orientation.w = 0.41344940650036655
 
 clip_03_goal = PoseStamped()
-clip_03_goal.pose.position.x = 0.8090350904948178
-clip_03_goal.pose.position.y = -0.05905678621987004
-clip_03_goal.pose.position.z = 0.000595339747434958
-clip_03_goal.pose.orientation.x = -0.7419143595894909
-clip_03_goal.pose.orientation.y = -0.6699794054594519
-clip_03_goal.pose.orientation.z = 0.025714768389053667
-clip_03_goal.pose.orientation.w = -0.005424940719662695
+clip_03_goal.pose.position.x    = -0.3920344483387401
+clip_03_goal.pose.position.y    = -0.8948527990964692
+clip_03_goal.pose.position.z    = 0.38824085176460876
+clip_03_goal.pose.orientation.x = -0.3998035580141053 
+clip_03_goal.pose.orientation.y = 0.6463289019325889
+clip_03_goal.pose.orientation.z = -0.5886384839740029
+clip_03_goal.pose.orientation.w = -0.27553729459124665
 
 
 # HAND Poses
@@ -98,8 +120,8 @@ pinch_pose = {'rh_FFJ1': 0.0, 'rh_FFJ2': 0.5, 'rh_FFJ3': 1.5707, 'rh_FFJ4': 0.35
 # Picking up
 clip_ur5_pick = PoseStamped()
 clip_ur5_pick.pose.position.x = -0.12850999838071914
-clip_ur5_pick.pose.position.y = -0.25302097135223445 + 0.012
-clip_ur5_pick.pose.position.z = -0.259793210890643 - 0.013
+clip_ur5_pick.pose.position.y = -0.25302097135223445 #+ 0.012
+clip_ur5_pick.pose.position.z = -0.259793210890643 #- 0.013
 clip_ur5_pick.pose.orientation.x = 0.19610455102080304
 clip_ur5_pick.pose.orientation.y = -0.26948830312491456
 clip_ur5_pick.pose.orientation.z = 0.5375557907686208
@@ -233,9 +255,9 @@ def clipping_iteration(clip_pose: PoseStamped, clip_goal_pose: PoseStamped):
     """
     #1 GET THE CLIP
 
-    move_arm_to(clip_pose, 0.05, 'pick')
-    move_arm_to(clip_pose, 0.05, 'pick')
     set_hand_pose('release')
+    move_arm_to(clip_pose, 0.05, 'pick')
+    move_arm_to(clip_pose, 0.05, 'pick')
     print(colored('Preparing to grab the clip', 'green'))
     if rospy.is_shutdown(): return
     rospy.sleep(1.0)
@@ -259,11 +281,10 @@ def clipping_iteration(clip_pose: PoseStamped, clip_goal_pose: PoseStamped):
     move_arm_to(clip_goal_pose, 0.05, 'clip')
     print(colored('Preparing to clip', 'green'))
     if rospy.is_shutdown(): return
-    rospy.sleep(1.0)
-    
+    rospy.sleep(1.0)    
 
-    move_arm_to(clip_goal_pose, 0.00, 'clip')
-    move_arm_to(clip_goal_pose, 0.00, 'clip')
+    move_arm_to(clip_goal_pose, -0.005, 'clip')
+    move_arm_to(clip_goal_pose, -0.005, 'clip')
     print(colored('Clip in place', 'green'))
     if rospy.is_shutdown(): return
     rospy.sleep(1.0)
@@ -292,13 +313,15 @@ if __name__ == "__main__":
     hand_commander = SrHandCommander(name='right_hand')
 
     # Set control velocity and acceleration
-    speed = 1.0
+    speed = 0.1
     hand_commander.set_max_velocity_scaling_factor(speed)
     hand_commander.set_max_acceleration_scaling_factor(speed)
     arm_commander.set_max_velocity_scaling_factor(speed)
     arm_commander.set_max_acceleration_scaling_factor(speed)
 
     print('\n' + colored('"clipping_task" ROS node is ready!', 'green') + '\n') 
+
+    #rospy.sleep(5.0)
 
     print('Starting clipping iteration 1')
     clipping_iteration(clip_01, clip_01_goal)
@@ -307,7 +330,7 @@ if __name__ == "__main__":
     print('Starting clipping iteration 2')
     clipping_iteration(clip_02, clip_02_goal)
     print('End of clipping iteration 2')
-
+    
     print('Starting clipping iteration 3')
     clipping_iteration(clip_03, clip_03_goal)
-    print('End of clipping iteration 3')    
+    print('End of clipping iteration 3')   
