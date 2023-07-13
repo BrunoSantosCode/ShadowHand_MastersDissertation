@@ -116,7 +116,7 @@ Packages description:
 ## Demonstration
 
  - [Wiring Fitting](https://youtu.be/Tl3kcnhR5q0)
- - [Automotive Painting Quality Contro](https://youtu.be/lpxIPF_6WYc)
+ - [Automotive Painting Quality Control](https://youtu.be/lpxIPF_6WYc)
 
 
 ![GitHub](https://github.com/BrunoSantosCode/ShadowHand_MastersDissertation/assets/78873048/2d035f65-0977-4cc2-a0be-0c87cf1df7f3)
