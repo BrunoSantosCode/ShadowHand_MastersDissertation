@@ -1,4 +1,4 @@
-# Postural and Hand Control of a Robotic System for Detailed Tasks
+# Control of a Robotic System with a Dexterous Hand for Detailed Tasks
 
 This repository contains the code developed in **Master's Dissertation** context.
 
