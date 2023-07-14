@@ -7,7 +7,7 @@ The `src` folder contains packages specifically implemented to run inside the Sh
 Packages description:
   - `openpose_mujoco` - includes the code for the kinematic retargeting algorithms **Direct Joints Mapping** and **DexPilot**;
   - `human_robot_map` - includes the code for the kinematic retargeting algorithm **BioIK** and for the **Automotive Painting Quality Control** task;
-  - `teach_net_teleoperation` and `shadow_teleop` - includes the code from the end-to-end algorithm **TeachNET** (adapted from [(TeachNet_Teleoperation repository)]([https://github.com/jorgef1299/SERP](https://github.com/TAMS-Group/TeachNet_Teleoperation)));
+  - `teach_net_teleoperation` and `shadow_teleop` - includes the code from the end-to-end algorithm **TeachNET** (adapted from [TeachNET](https://doi.org/10.1109/ICRA.2019.8794277));
   - `shadow_pinch_teleop` - includes the code for the **Wiring Fitting** task;
 
 ## References
