@@ -10,7 +10,6 @@
 #*  Change hand referential to Shadow Hand referential             *#
 #*  Fix joint 1 to 0                                               *#
 #*  Parameters adjustments                                         *#
-#*  + Shadow Hand keypoints mapping                                *#
 #*  + Plot keypoints to RVIZ                                       *#
 #*  + Print/Save solver duration [ms]                              *#
 #* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *#
