@@ -72,7 +72,7 @@ Packages description:
 
 4. Run BioIK
     ```bash
-      roslaunch human_robot_map bio_ik_v8.launch
+      roslaunch human_robot_map bio_ik_v7.launch
     ```
 
 ### TeachNET
