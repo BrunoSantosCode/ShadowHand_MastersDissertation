@@ -1,5 +1,9 @@
 # Control of a Robotic System with a Dexterous Hand for Detailed Tasks
 
+## References
+
+ - [Dissertation.pdf](https://drive.google.com/file/d/1IKkHbtpDgwqpFbnLZ9jX-jxyZ6cfz0lF/view?usp=sharing)
+
 This repository contains the code developed in **Master's Dissertation** context.
 
 The `src` folder contains packages specifically implemented to run inside the Shadow Dexterous Hand docker container.
