@@ -1,9 +1,5 @@
 # Control of a Robotic System with a Dexterous Hand for Detailed Tasks
 
-## References
-
- - [Dissertation.pdf](https://drive.google.com/file/d/1IKkHbtpDgwqpFbnLZ9jX-jxyZ6cfz0lF/view?usp=sharing)
-
 This repository contains the code developed in **Master's Dissertation** context.
 
 The `src` folder contains packages specifically implemented to run inside the Shadow Dexterous Hand docker container.
@@ -14,6 +10,10 @@ Packages description:
   - `teach_net_teleoperation` and `shadow_teleop` - includes the code from the end-to-end algorithm **TeachNET** (adapted from [TeachNET_Teleoperation Repository](https://github.com/TAMS-Group/TeachNet_Teleoperation));
   - `shadow_pinch_teleop` - includes the code for the **Wiring Fitting** task;
 
+## Document
+
+ - [Dissertation.pdf](https://drive.google.com/file/d/1IKkHbtpDgwqpFbnLZ9jX-jxyZ6cfz0lF/view?usp=sharing)
+   
 ## References
 
  - [DexPilot](https://doi.org/10.1109/ICRA40945.2020.9197124)
