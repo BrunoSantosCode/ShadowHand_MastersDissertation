@@ -13,6 +13,11 @@ Packages description:
 ## Document
 
  - [Dissertation.pdf](https://drive.google.com/file/d/1IKkHbtpDgwqpFbnLZ9jX-jxyZ6cfz0lF/view?usp=sharing)
+
+## Demonstration
+
+ - [Wiring Fitting](https://youtu.be/OPnqiDPKQko)            
+ - [Automotive Painting Quality Control](https://youtu.be/lpxIPF_6WYc)
    
 ## References
 
@@ -116,11 +121,6 @@ Packages description:
     ```
 
 3. Publish hand keypoints positions to replicate
-
-## Demonstration
-
- - [Wiring Fitting](https://youtu.be/OPnqiDPKQko)            
- - [Automotive Painting Quality Control](https://youtu.be/lpxIPF_6WYc)
 
 
 ![GitHub](https://github.com/BrunoSantosCode/ShadowHand_MastersDissertation/assets/78873048/2d035f65-0977-4cc2-a0be-0c87cf1df7f3)
