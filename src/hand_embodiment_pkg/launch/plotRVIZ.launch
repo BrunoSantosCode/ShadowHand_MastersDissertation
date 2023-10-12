@@ -1,3 +1,0 @@
-<launch>
-    <node name="plotRVIZ" pkg="hand_embodiment_pkg" type="plotRVIZ.py" output="screen" />
-</launch>

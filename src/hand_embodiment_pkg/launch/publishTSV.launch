@@ -1,3 +1,0 @@
-<launch>
-    <node name="publishTSV" pkg="hand_embodiment_pkg" type="publishTSV.py" output="screen" />
-</launch>
